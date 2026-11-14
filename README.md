@@ -3,12 +3,14 @@
 **Hokuto no Ken 2 for Sega Mega Drive, rebuilt as a 2.5D side-scrolling beat 'em up.**
 ROM hack by **Metodico**.
 
-▶ **Play / patch online:** https://bboymeth-cmd.github.io/hnk2-perfect-edition/
+▶ **Play / patch online:** https://bboymeth-cmd.github.io/hnk2-perfect-edition/  
+▶ **itch.io:** https://bboymeth-cmd.itch.io/hnk2-perfect-edition  
+▶ **Trailer:** https://youtu.be/yxDn07W8Ti4
 
 ## Features
 - 2.5D movement: walk into the depth of every street
 - Smarter enemies, each with its own AI and life bar
-- Grab, carry and throw, 2-button special move, deflect knives
+- Grab, carry and throw, 2-button special move, hit projectiles back
 - 2 players at the same time, P1 vs P2 duels in the boss arenas
 - 8 Kenshiro looks, results screen, more blood, bleeding portraits
 - No more endless labyrinths: straight to the story

@@ -44,7 +44,7 @@ const CONFIG = {
 
   youtubeId:   "yxDn07W8Ti4",
   // Link extra (lascia "" per nasconderli)
-  itch:        "",
+  itch:        "https://bboymeth-cmd.itch.io/hnk2-perfect-edition",
   youtubeChannel: "",
 };
 </script>
@@ -269,6 +269,7 @@ html[lang=ja] nav .links a{font-size:12px}
       <a class="btn" href="#download" data-i18n="cta_download">▶ SCARICA</a>
       <a class="btn ghost" href="#moves" data-i18n="nav_moves">MOVE LIST</a>
       <a class="btn ghost" href="#trailer" data-i18n="w_trailer">TRAILER</a>
+      <a class="btn ghost itch-btn" id="itch-hero" target="_blank" rel="noopener">itch.io ↗</a>
     </div>
   </div>
 </header>
@@ -328,6 +329,7 @@ html[lang=ja] nav .links a{font-size:12px}
         <p class="cnt hide" style="margin:14px 0 0;color:var(--gold)">★ <b class="cnt-n">0</b> <span data-i18n="cnt_label"></span></p>
         <p class="small" style="margin:14px 0 0"><span data-i18n="dl_alt"></span>
           <a id="ips-link" href="#" download data-i18n="dl_ips"></a></p>
+        <p class="small" style="margin:10px 0 0"><span data-i18n="dl_itch"></span> <a id="itch-link" href="#" target="_blank" rel="noopener">itch.io ↗</a></p>
       </div>
       <div class="pbox">
         <h3 class="ph" data-i18n="req_title"></h3>
@@ -391,7 +393,7 @@ const K={
 /* ---------- testi IT / EN ---------- */
 const T = {
 it:{
-  cnt_label:"ROM PATCHATE",c_sys:"MEGA DRIVE / GENESIS",c_lang:"ENG · JAP · ITA",w_trailer:"TRAILER",w_download:"DOWNLOAD",nav_moves:"MOVE LIST",nav_features:"NOVITÀ",nav_screens:"IMMAGINI",nav_support:"SUPPORTA",
+  dl_itch:"Lo trovi anche su",cnt_label:"ROM PATCHATE",c_sys:"MEGA DRIVE / GENESIS",c_lang:"ENG · JAP · ITA",w_trailer:"TRAILER",w_download:"DOWNLOAD",nav_moves:"MOVE LIST",nav_features:"NOVITÀ",nav_screens:"IMMAGINI",nav_support:"SUPPORTA",
   push:"▶ PREMI START ◀",
   tagline:"Hokuto no Ken 2 per Mega Drive, ricostruito da zero come un picchiaduro a scorrimento in 2.5D: strade da percorrere in profondità, nemici con la loro intelligenza e la loro energia, prese, mosse speciali e 2 giocatori.",
   b_players:"1–2 GIOCATORI",b_free:"GRATIS · PATCH IPS",cta_download:"▶ SCARICA",
@@ -457,7 +459,7 @@ it:{
   st_err:"Errore: {msg}"
 },
 en:{
-  cnt_label:"ROMS PATCHED",c_sys:"MEGA DRIVE / GENESIS",c_lang:"ENG · JAP · ITA",w_trailer:"TRAILER",w_download:"DOWNLOAD",nav_moves:"MOVE LIST",nav_features:"FEATURES",nav_screens:"SCREENS",nav_support:"SUPPORT",
+  dl_itch:"Also available on",cnt_label:"ROMS PATCHED",c_sys:"MEGA DRIVE / GENESIS",c_lang:"ENG · JAP · ITA",w_trailer:"TRAILER",w_download:"DOWNLOAD",nav_moves:"MOVE LIST",nav_features:"FEATURES",nav_screens:"SCREENS",nav_support:"SUPPORT",
   push:"▶ PRESS START ◀",
   tagline:"Hokuto no Ken 2 for Mega Drive, rebuilt from the ground up as a 2.5D side-scrolling beat 'em up: streets you walk into in depth, enemies with their own AI and life, grabs, special moves and 2 players.",
   b_players:"1–2 PLAYERS",b_free:"FREE · IPS PATCH",cta_download:"▶ DOWNLOAD",
@@ -523,7 +525,7 @@ en:{
   st_err:"Error: {msg}"
 },
 ja:{
-  cnt_label:"回パッチ適用",c_sys:"メガドライブ / ジェネシス",c_lang:"英語・日本語・イタリア語",w_trailer:"トレーラー",w_download:"ダウンロード",nav_moves:"技表",nav_features:"新要素",nav_screens:"画像",nav_support:"支援",
+  dl_itch:"こちらでも配布中：",cnt_label:"回パッチ適用",c_sys:"メガドライブ / ジェネシス",c_lang:"英語・日本語・イタリア語",w_trailer:"トレーラー",w_download:"ダウンロード",nav_moves:"技表",nav_features:"新要素",nav_screens:"画像",nav_support:"支援",
   push:"▶ スタートボタンを押せ ◀",
   tagline:"メガドライブ版『北斗の拳』を2.5Dの横スクロールアクションとしてゼロから作り直したMODです。奥行きのあるステージ、それぞれ思考と体力を持つ敵、つかみ技、必殺技、そして2人同時プレイ。",
   b_players:"1〜2人用",b_free:"無料・IPSパッチ",cta_download:"▶ ダウンロード",
@@ -637,6 +639,7 @@ document.getElementById("lb").onclick=e=>e.currentTarget.classList.remove("on");
   const Lk=[];if(CONFIG.itch)Lk.push(`<a href="${CONFIG.itch}" target="_blank" rel="noopener">itch.io</a>`);
   if(CONFIG.youtubeChannel)Lk.push(`<a href="${CONFIG.youtubeChannel}" target="_blank" rel="noopener">YouTube</a>`);
   $("links-line").innerHTML=Lk.join(" · ");
+  if(CONFIG.itch){$("itch-link").href=CONFIG.itch;$("itch-hero").href=CONFIG.itch;}else{$("itch-link").parentElement.classList.add("hide");$("itch-hero").classList.add("hide");}
 })();
 
 /* ---------- patcher ---------- */
