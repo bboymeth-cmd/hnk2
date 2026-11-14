@@ -3,7 +3,7 @@
 **Hokuto no Ken 2 for Sega Mega Drive, rebuilt as a 2.5D side-scrolling beat 'em up.**
 ROM hack by **Metodico**.
 
-▶ **Play / patch online:** https://bboymeth-cmd.github.io/hnk2-perfect-edition/  
+▶ **Play / patch online:** https://bboymeth-cmd.github.io/hnk2/  
 ▶ **itch.io:** https://bboymeth-cmd.itch.io/hnk2-perfect-edition  
 ▶ **Trailer:** https://youtu.be/yxDn07W8Ti4
 
