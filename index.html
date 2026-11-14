@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HNK2 – Perfect Edition · Mega Drive ROM hack</title>
+<meta name="description" content="HNK2 – Perfect Edition: Hokuto no Ken 2 for Mega Drive rebuilt as a 2.5D side-scrolling beat 'em up. Depth movement, enemies with AI, grabs, special move, 2 players. Free IPS patch with online patcher.">
+<meta property="og:title" content="HNK2 – Perfect Edition">
+<meta property="og:description" content="The mod that the greatest Hokuto no Ken game deserves. Mega Drive ROM hack by Metodico.">
+<meta property="og:image" content="img/og-image.jpg">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=DotGothic16&display=swap" rel="stylesheet">
+
+<script>
+/* ============================================================
+   CONFIGURAZIONE — modifica SOLO questo blocco ad ogni release
+   ============================================================ */
+const CONFIG = {
+  version:     "1.0",                               // versione mostrata nella pagina
+  releaseDate: "2026-11-14",                                // es. "2026-12-01" (vuoto = "in arrivo")
+  patchFile:   "patch/HNK2-Perfect-Edition.ips",    // percorso del file .ips nel sito
+  outputName:  "HNK2 - Perfect Edition.bin",        // nome della ROM che l'utente scarica
+
+  // ROM originale richiesta (Hokuto no Ken - Shin Seikimatsu Kyuuseishu Densetsu (Japan))
+  baseName:    "Hokuto no Ken - Shin Seikimatsu Kyuuseishu Densetsu (Japan).bin",
+  baseSize:    524288,
+  baseCRC32:   "1B6585E7",
+  baseMD5:     "f5e327aa603b334fd5713fda10464748",
+  baseSHA1:    "7d489e1087a0816e2091261f6550f42a61474915",
+
+  // CRC32 della ROM patchata (facoltativo: lascia "" per non controllarlo)
+  resultCRC32: "89C7098E",
+
+  // Donazioni (lascia "" per nascondere un pulsante)
+  paypal:      "https://paypal.me/metodicoMET",
+  kofi:        "",
+
+  // Trailer: se metti l'ID di YouTube usa quello, altrimenti il video nel sito
+  // Contatore delle patch (servizio gratuito Abacus). Cambia il nome solo se vuoi ripartire da zero.
+  counterNs:   "hnk2-perfect-edition-metodico",
+
+  youtubeId:   "yxDn07W8Ti4",
+  // Link extra (lascia "" per nasconderli)
+  itch:        "",
+  youtubeChannel: "",
+};
+</script>
+
+<style>
+:root{
+  --bg:#05060c; --bg2:#0b0d1a; --panel:#11142a; --panel2:#181c38; --line:#2a3060;
+  --text:#e8eaf6; --muted:#9aa2c8; --red:#d6192b; --red2:#ff3b4b; --red3:#7d0d17;
+  --blue:#1d6ee0; --blue2:#58a6ff; --gold:#ffd23c; --gold2:#b5861a; --ok:#3ce07a; --err:#ff4d5e;
+  --px:4px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font:22px/1.25 VT323,"DotGothic16","Courier New",monospace;
+  background-image:
+    radial-gradient(circle at 20% 10%,rgba(29,110,224,.16),transparent 40%),
+    radial-gradient(circle at 80% 60%,rgba(214,25,43,.12),transparent 45%);
+  background-attachment:fixed}
+/* scanlines CRT su tutta la pagina */
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:100;
+  background:repeating-linear-gradient(0deg,rgba(0,0,0,.18) 0 1px,transparent 1px 3px);mix-blend-mode:multiply}
+a{color:var(--blue2)}
+img{max-width:100%;display:block}
+.px{font-family:"Press Start 2P","DotGothic16",monospace;letter-spacing:0;line-height:1.5}
+.pix{image-rendering:pixelated;image-rendering:crisp-edges}
+.wrap{max-width:1120px;margin:0 auto;padding:0 20px}
+
+/* --- cornici pixel (angoli a gradino) --- */
+.pbox{position:relative;background:var(--panel);
+  box-shadow:
+    0 calc(-1*var(--px)) 0 0 var(--line), 0 var(--px) 0 0 var(--line),
+    calc(-1*var(--px)) 0 0 0 var(--line), var(--px) 0 0 0 var(--line),
+    inset 0 var(--px) 0 0 rgba(255,255,255,.05), inset 0 calc(-1*var(--px)) 0 0 rgba(0,0,0,.35);
+  margin:var(--px)}
+.pbox.red{--line:var(--red)} .pbox.gold{--line:var(--gold)} .pbox.blue{--line:var(--blue)}
+
+/* --- bottoni arcade --- */
+.btn{display:inline-flex;align-items:center;gap:10px;padding:14px 18px;border:0;cursor:pointer;text-decoration:none;
+  font:12px/1.4 "Press Start 2P","DotGothic16",monospace;color:#fff;background:var(--c,var(--red));position:relative;margin:4px;
+  box-shadow:0 -4px 0 0 var(--cd,var(--red3)) inset, 0 4px 0 0 #000, 0 -4px 0 0 #000, 4px 0 0 0 #000, -4px 0 0 0 #000;
+  transition:transform .05s}
+.btn:hover{filter:brightness(1.15)}
+.btn:active{transform:translateY(4px);box-shadow:0 -1px 0 0 var(--cd,var(--red3)) inset,0 0 0 0 #000,0 -4px 0 0 #000,4px 0 0 0 #000,-4px 0 0 0 #000}
+.btn.ghost{--c:var(--panel2);--cd:#0a0c1c}
+.btn.pp{--c:#ffc439;--cd:#b5861a;color:#111}
+.btn.kofi{--c:#29abe0;--cd:#17769c}
+.btn[disabled]{opacity:.4;cursor:not-allowed;filter:grayscale(.6)}
+
+/* --- nav --- */
+nav{position:sticky;top:0;z-index:50;background:rgba(5,6,12,.92);border-bottom:4px solid var(--red);backdrop-filter:blur(6px)}
+nav .wrap{display:flex;align-items:center;gap:18px;height:60px}
+nav .brand{display:flex;align-items:center;height:100%}nav .brand img{height:56px;width:auto;display:block}
+nav .links{display:flex;gap:16px;margin-left:auto;font-size:9px}
+nav .links a{color:var(--muted);text-decoration:none;font-family:"Press Start 2P","DotGothic16",monospace}
+nav .links a:hover{color:var(--gold)}
+.lang{display:flex;gap:0;box-shadow:0 0 0 3px #000}
+.lang button{background:var(--panel2);border:0;color:var(--muted);padding:8px 10px;font:10px "Press Start 2P","DotGothic16",monospace;cursor:pointer}
+.lang button.on{background:var(--red);color:#fff}
+@media(max-width:900px){nav .links{display:none}nav .lang{margin-left:auto}}
+
+/* --- hero --- */
+.hero{padding:44px 0 56px;text-align:center;position:relative;overflow:hidden;isolation:isolate}
+.hero::before{content:"";position:absolute;inset:-40px;z-index:-1;opacity:.35;
+  background:url(img/og-image.jpg) center/cover;filter:blur(18px) saturate(1.4)}
+.crt{display:inline-block;padding:18px;background:#1a1a22;border-radius:28px;
+  box-shadow:0 0 0 4px #000,0 0 0 8px #2c2c38,0 24px 60px rgba(0,0,0,.7)}
+.crt .screen{position:relative;border-radius:16px;overflow:hidden;background:#000;width:min(640px,82vw)}
+.crt .screen img{width:100%;height:auto}
+.crt .screen::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:repeating-linear-gradient(0deg,rgba(0,0,0,.28) 0 1px,transparent 1px 3px),radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,.55))}
+.hero h1{font-size:clamp(18px,3.6vw,34px);margin:30px 0 6px;color:#fff;
+  text-shadow:4px 4px 0 var(--red),8px 8px 0 #000}
+.hero .sub{font-size:10px;color:var(--gold);margin:0 0 16px}
+.hero .tagline{color:var(--text);max-width:680px;margin:0 auto 22px;font-size:26px}
+.blink{animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.chips{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-bottom:26px}
+.chip{font:9px "Press Start 2P","DotGothic16",monospace;padding:8px 10px;background:var(--panel2);color:var(--muted);box-shadow:0 0 0 3px #000}
+.chip b{color:var(--gold);font-weight:normal}
+.cta{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+
+/* --- sezioni --- */
+section{padding:72px 0 64px;position:relative}
+.stage{display:flex;align-items:center;gap:14px;margin:0 0 6px;flex-wrap:wrap}
+.stage .num{font:10px "Press Start 2P","DotGothic16",monospace;background:var(--red);color:#fff;padding:8px 10px;box-shadow:4px 4px 0 #000}
+.stage h2{font:clamp(16px,2.6vw,26px) "Press Start 2P","DotGothic16",monospace;margin:0;color:#fff;text-shadow:3px 3px 0 #000}
+.lead{color:var(--muted);margin:10px 0 30px;max-width:760px;font-size:24px}
+.divider{height:12px;background:repeating-linear-gradient(90deg,var(--red) 0 12px,transparent 12px 24px);opacity:.5;margin:0}
+
+/* --- trailer --- */
+.video{aspect-ratio:16/9;width:100%;background:#000}
+.video video,.video iframe{width:100%;height:100%;border:0;display:block}
+
+/* --- move list --- */
+.ctrl{display:grid;grid-template-columns:minmax(0,1.1fr) 1fr;gap:26px;align-items:center;margin-bottom:40px}
+@media(max-width:860px){.ctrl{grid-template-columns:1fr}}
+.ctrl .pad{padding:14px}
+.ctrl .pad img{width:100%;height:auto}
+.keys{display:grid;grid-template-columns:auto 1fr;gap:12px 16px;align-items:center;padding:20px}
+.k{display:inline-flex;align-items:center;justify-content:center;min-width:38px;height:38px;padding:0 8px;
+  font:11px "Press Start 2P","DotGothic16",monospace;color:#fff;border-radius:50%;box-shadow:0 4px 0 #000,0 0 0 3px #000}
+.k.a{background:#d6192b} .k.b{background:#1d6ee0} .k.c{background:#f0be1e;color:#111}
+.k.st{border-radius:4px;background:#444;font-size:8px;min-width:58px}
+.k.d{border-radius:4px;background:#2a2a3a;font-size:16px;font-family:VT323,"DotGothic16",monospace}
+.moves{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(330px,100%),1fr));gap:26px}
+.move{padding:0;display:flex;flex-direction:column}
+.move .gif{background:#000;border-bottom:4px solid #000}
+.move .gif img{width:100%;height:auto}
+.move .body{padding:16px 16px 18px}
+.move h3{font:12px/1.5 "Press Start 2P","DotGothic16",monospace;margin:0 0 10px;color:var(--gold)}
+.input{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 0 12px;font:12px "Press Start 2P","DotGothic16",monospace}
+.input .plus{color:var(--muted)}
+.move p{margin:0 0 12px;color:var(--text)}
+.tags{display:flex;flex-wrap:wrap;gap:8px}
+.tag{font:8px "Press Start 2P","DotGothic16",monospace;padding:6px 8px;background:#000;color:var(--red2);box-shadow:0 0 0 2px var(--red3)}
+.tag.g{color:var(--ok);box-shadow:0 0 0 2px #1d6b3b} .tag.y{color:var(--gold);box-shadow:0 0 0 2px var(--gold2)}
+.tips{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(300px,100%),1fr));gap:20px;margin-top:34px}
+.tip{padding:16px}
+.tip h4{font:10px/1.6 "Press Start 2P","DotGothic16",monospace;margin:0 0 8px;color:var(--blue2)}
+.tip p{margin:0;color:var(--muted)}
+
+/* --- features --- */
+.feat{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(250px,100%),1fr));gap:20px}
+.f{padding:16px}
+.f .ic{display:inline-block;font:10px "Press Start 2P","DotGothic16",monospace;background:var(--red);color:#fff;padding:6px 8px;margin-bottom:10px;box-shadow:3px 3px 0 #000}
+.f h3{margin:0 0 6px;font:10px/1.6 "Press Start 2P","DotGothic16",monospace;color:#fff}
+.f p{margin:0;color:var(--muted)}
+
+/* --- gallery --- */
+.gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(240px,100%),1fr));gap:24px}
+.gal figure{margin:8px;cursor:zoom-in;background:#000;box-shadow:0 0 0 4px #000,0 0 0 8px var(--line)}
+.gal img{width:100%;height:auto;aspect-ratio:320/224;object-fit:cover;transition:transform .2s}
+.gal figure:hover img{transform:scale(1.03)}
+.gal figure:hover{box-shadow:0 0 0 4px #000,0 0 0 8px var(--gold)}
+.gal figcaption{font:8px/1.6 "Press Start 2P","DotGothic16",monospace;color:var(--muted);padding:8px 10px;background:var(--panel)}
+.lb{position:fixed;inset:0;background:rgba(0,0,0,.94);display:none;align-items:center;justify-content:center;z-index:200;cursor:zoom-out;padding:20px}
+.lb.on{display:flex}
+.lb img{max-height:90vh;image-rendering:pixelated;box-shadow:0 0 0 6px #000,0 0 0 10px var(--gold)}
+
+/* --- download / patcher --- */
+.patcher{display:grid;grid-template-columns:1.2fr 1fr;gap:26px}
+@media(max-width:900px){.patcher{grid-template-columns:1fr}}
+.patcher .pbox{padding:22px}
+.drop{border:4px dashed #3a4280;padding:28px 16px;text-align:center;cursor:pointer;background:#0a0c1c;transition:border-color .1s,background .1s}
+.drop:hover,.drop.over{border-color:var(--gold);background:#141832}
+.drop strong{display:block;font:11px/1.6 "Press Start 2P","DotGothic16",monospace;margin-bottom:8px;color:#fff}
+.drop small{color:var(--muted);font-size:20px}
+.status{margin:16px 0;padding:12px 14px;background:#000;font-size:22px;min-height:52px;box-shadow:0 0 0 3px var(--line)}
+.status.ok{color:var(--ok);box-shadow:0 0 0 3px #1d6b3b}
+.status.err{color:#ffb3ba;box-shadow:0 0 0 3px var(--red3)}
+.req{width:100%;border-collapse:collapse}
+.req td{padding:6px 0;border-bottom:2px dashed var(--line);vertical-align:top;font-size:20px}
+.req td:first-child{color:var(--muted);width:100px;padding-right:10px}
+.req code{font:16px/1.3 ui-monospace,Consolas,monospace;word-break:break-all;color:var(--gold)}
+.small{font-size:19px;color:var(--muted)}
+.owner{margin:0 0 14px;padding:10px 12px;font-size:20px;color:var(--text);background:#1a0a0e;box-shadow:0 0 0 3px var(--red3)}
+.owner b{color:var(--gold);font-weight:normal}
+h3.ph{font:11px/1.6 "Press Start 2P","DotGothic16",monospace;margin:0 0 12px;color:var(--gold)}
+ol.steps{margin:0;padding-left:24px;color:var(--muted)}
+ol.steps li{margin-bottom:6px}
+
+/* --- donate --- */
+.donate{text-align:center}
+.coin{font:clamp(14px,2.4vw,22px) "Press Start 2P","DotGothic16",monospace;color:var(--gold);text-shadow:3px 3px 0 #000;margin:0 0 10px}
+.donate .lead{margin:10px auto 26px}
+
+/* --- crediti --- */
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:26px}
+@media(max-width:800px){.cols{grid-template-columns:1fr}}
+.cols .pbox{padding:20px}
+.cols ul{margin:0;padding-left:22px;color:var(--muted)}
+.cols li{margin-bottom:6px}
+.disc{color:var(--muted);margin:0}
+
+footer{padding:34px 0 46px;text-align:center;color:var(--muted);border-top:4px solid var(--red)}
+footer .px{font-size:10px;color:#fff;margin-bottom:10px;text-shadow:2px 2px 0 var(--red)}
+.hide{display:none!important}
+body.nofont{font-size:18px}body.nofont .lead,body.nofont .hero .tagline{font-size:19px}
+@media(max-width:600px){section{padding:48px 0 40px}.wrap{padding:0 14px}.hero .tagline{font-size:22px}.lead{font-size:21px}.req td:first-child{width:64px}.patcher .pbox{padding:16px}.btn{padding:12px 14px;font-size:10px}.crt{padding:10px;border-radius:18px}}
+html[lang=ja] body{font-family:"DotGothic16","VT323",monospace;font-size:18px;line-height:1.55}
+html[lang=ja] .lead,html[lang=ja] .hero .tagline{font-size:19px}
+html[lang=ja] .move p,html[lang=ja] .tip p,html[lang=ja] .f p{font-size:17px}
+html[lang=ja] .stage h2,html[lang=ja] .move h3,html[lang=ja] .f h3,html[lang=ja] .tip h4,html[lang=ja] h3.ph,html[lang=ja] .chip,html[lang=ja] .tag,html[lang=ja] .btn,html[lang=ja] nav .links a,html[lang=ja] .gal figcaption,html[lang=ja] .drop strong,html[lang=ja] .hero .sub{font-family:"Press Start 2P","DotGothic16",monospace;letter-spacing:.02em}
+html[lang=ja] .move h3,html[lang=ja] .f h3,html[lang=ja] .tip h4,html[lang=ja] h3.ph{font-size:15px}
+html[lang=ja] .chip,html[lang=ja] .tag,html[lang=ja] .gal figcaption{font-size:12px}
+html[lang=ja] nav .links a{font-size:12px}
+@media (prefers-reduced-motion:reduce){.blink{animation:none}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <a class="brand" href="#top"><img src="img/logo.png" alt="HNK2 – Perfect Edition" width="173" height="60"></a>
+    <div class="links">
+      <a href="#trailer" data-i18n="w_trailer">TRAILER</a>
+      <a href="#moves" data-i18n="nav_moves">MOVE LIST</a>
+      <a href="#features" data-i18n="nav_features">NOVITÀ</a>
+      <a href="#screens" data-i18n="nav_screens">IMMAGINI</a>
+      <a href="#download" data-i18n="w_download">DOWNLOAD</a>
+      <a href="#support" data-i18n="nav_support">SUPPORTA</a>
+    </div>
+    <div class="lang"><button data-lang="en" class="on">EN</button><button data-lang="it">IT</button><button data-lang="ja">JP</button></div>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="wrap">
+    <div class="crt"><div class="screen"><img class="pix" src="img/title.jpg" alt="HNK2 – Perfect Edition" width="640" height="448"></div></div>
+    <h1 class="px">HNK2 – PERFECT EDITION</h1>
+    <p class="sub px blink" data-i18n="push">▶ PREMI START ◀</p>
+    <p class="tagline" data-i18n="tagline"></p>
+    <div class="chips">
+      <span class="chip" data-i18n="c_sys">MEGA DRIVE / GENESIS</span>
+      <span class="chip">VER <b id="v-badge">–</b></span>
+      <span class="chip" data-i18n="b_players"></span>
+      <span class="chip" data-i18n="c_lang">ENG · JAP · ITA</span>
+      <span class="chip" data-i18n="b_free"></span>
+      <span class="chip cnt hide">★ <b class="cnt-n">0</b> <span data-i18n="cnt_label"></span></span>
+    </div>
+    <div class="cta">
+      <a class="btn" href="#download" data-i18n="cta_download">▶ SCARICA</a>
+      <a class="btn ghost" href="#moves" data-i18n="nav_moves">MOVE LIST</a>
+      <a class="btn ghost" href="#trailer" data-i18n="w_trailer">TRAILER</a>
+    </div>
+  </div>
+</header>
+<div class="divider"></div>
+
+<section id="trailer">
+  <div class="wrap">
+    <div class="stage"><span class="num">STAGE 1</span><h2 data-i18n="w_trailer">TRAILER</h2></div>
+    <p class="lead" data-i18n="trailer_lead"></p>
+    <div class="pbox red"><div class="video" id="video-box"></div></div>
+  </div>
+</section>
+
+<section id="moves">
+  <div class="wrap">
+    <div class="stage"><span class="num">STAGE 2</span><h2 data-i18n="nav_moves">MOVE LIST</h2></div>
+    <p class="lead" data-i18n="moves_lead"></p>
+    <div class="ctrl">
+      <div class="pbox blue pad"><img class="pix" src="moves/controls.gif" alt="Joystick A B C" width="320" height="52"></div>
+      <div class="pbox keys" id="keys"></div>
+    </div>
+    <div class="moves" id="movegrid"></div>
+    <div class="tips" id="tips"></div>
+  </div>
+</section>
+
+<section id="features">
+  <div class="wrap">
+    <div class="stage"><span class="num">STAGE 3</span><h2 data-i18n="feat_title">NOVITÀ</h2></div>
+    <p class="lead" data-i18n="feat_lead"></p>
+    <div class="feat" id="feat"></div>
+  </div>
+</section>
+
+<section id="screens">
+  <div class="wrap">
+    <div class="stage"><span class="num">STAGE 4</span><h2 data-i18n="screens_title">IMMAGINI</h2></div>
+    <p class="lead" data-i18n="screens_lead"></p>
+    <div class="gal" id="gal"></div>
+  </div>
+</section>
+
+<section id="download">
+  <div class="wrap">
+    <div class="stage"><span class="num">STAGE 5</span><h2 data-i18n="w_download">DOWNLOAD</h2></div>
+    <p class="lead" data-i18n="dl_lead"></p>
+    <div class="patcher">
+      <div class="pbox gold">
+        <div class="drop" id="drop" tabindex="0" role="button">
+          <strong data-i18n="drop_title"></strong>
+          <small data-i18n="drop_sub"></small>
+        </div>
+        <input type="file" id="file" accept=".bin,.md,.gen,.smd,.zip" hidden>
+        <div class="status" id="status">…</div>
+        <p class="owner" data-i18n="owner"></p>
+        <button class="btn" id="go" disabled data-i18n="btn_patch">⬇</button>
+        <p class="cnt hide" style="margin:14px 0 0;color:var(--gold)">★ <b class="cnt-n">0</b> <span data-i18n="cnt_label"></span></p>
+        <p class="small" style="margin:14px 0 0"><span data-i18n="dl_alt"></span>
+          <a id="ips-link" href="#" download data-i18n="dl_ips"></a></p>
+      </div>
+      <div class="pbox">
+        <h3 class="ph" data-i18n="req_title"></h3>
+        <table class="req">
+          <tr><td data-i18n="req_game"></td><td><code>Hokuto no Ken (Japan)</code><br><span class="small">北斗の拳 新世紀末救世主伝説 · 1989</span></td></tr>
+          <tr><td data-i18n="req_file"></td><td><code id="r-name"></code></td></tr>
+          <tr><td data-i18n="req_size"></td><td><code id="r-size"></code></td></tr>
+          <tr><td>CRC32</td><td><code id="r-crc"></code></td></tr>
+          <tr><td>MD5</td><td><code id="r-md5"></code></td></tr>
+          <tr><td>SHA-1</td><td><code id="r-sha"></code></td></tr>
+        </table>
+        <p class="small" style="margin:12px 0 18px" data-i18n="req_note"></p>
+        <h3 class="ph" data-i18n="play_title"></h3>
+        <ol class="steps"><li data-i18n="play1"></li><li data-i18n="play2"></li><li data-i18n="play3"></li></ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="support" class="donate">
+  <div class="wrap">
+    <p class="coin blink">INSERT COIN</p>
+    <div class="stage" style="justify-content:center"><h2 data-i18n="sup_title"></h2></div>
+    <p class="lead" data-i18n="sup_lead"></p>
+    <div class="cta">
+      <a class="btn pp" id="pp" target="_blank" rel="noopener" data-i18n="btn_pp"></a>
+      <a class="btn kofi" id="kofi" target="_blank" rel="noopener" data-i18n="btn_kofi"></a>
+    </div>
+  </div>
+</section>
+
+<section id="credits">
+  <div class="wrap cols">
+    <div class="pbox">
+      <h3 class="ph" data-i18n="cred_title"></h3>
+      <ul><li data-i18n="cred1"></li><li data-i18n="cred2"></li><li data-i18n="cred3"></li></ul>
+      <p class="small" id="links-line" style="margin:10px 0 0"></p>
+    </div>
+    <div class="pbox">
+      <h3 class="ph" data-i18n="disc_title"></h3>
+      <p class="disc" data-i18n="disc"></p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="px">HNK2 – PERFECT EDITION</div>
+  <div>MADE BY METODICO · <span id="f-ver"></span></div>
+</footer>
+
+<div class="lb" id="lb"><img alt=""></div>
+
+<script>
+/* ---------- tasti ---------- */
+const K={
+  A:'<span class="k a">A</span>',B:'<span class="k b">B</span>',C:'<span class="k c">C</span>',
+  ST:'<span class="k st">START</span>',
+  ANY:'<span class="k d">✥</span>',U:'<span class="k d">↑</span>',D:'<span class="k d">↓</span>',
+  TO:'<span class="k d">→</span>',P:'<span class="plus">+</span>',TH:'<span class="plus">▸</span>'
+};
+/* ---------- testi IT / EN ---------- */
+const T = {
+it:{
+  cnt_label:"ROM PATCHATE",c_sys:"MEGA DRIVE / GENESIS",c_lang:"ENG · JAP · ITA",w_trailer:"TRAILER",w_download:"DOWNLOAD",nav_moves:"MOVE LIST",nav_features:"NOVITÀ",nav_screens:"IMMAGINI",nav_support:"SUPPORTA",
+  push:"▶ PREMI START ◀",
+  tagline:"Hokuto no Ken 2 per Mega Drive, ricostruito da zero come un picchiaduro a scorrimento in 2.5D: strade da percorrere in profondità, nemici con la loro intelligenza e la loro energia, prese, mosse speciali e 2 giocatori.",
+  b_players:"1–2 GIOCATORI",b_free:"GRATIS · PATCH IPS",cta_download:"▶ SCARICA",
+  trailer_lead:"La mod che il miglior gioco di Hokuto no Ken si meritava.",
+  moves_lead:"Comandi e mosse di Kenshiro. Ogni animazione è presa dal gioco vero: sotto vedi la leva e i tasti premuti nel momento giusto.",
+  keys:[["ANY","Muoviti in 8 direzioni: ↑ e ↓ per andare in profondità nella strada"],["A","Pugno"],["B","Calcio"],["C","Salto"],["ST","Pausa · sul controller 2 fa entrare il secondo giocatore"]],
+  moves:[
+    {gif:"special",t:"COLPO SPECIALE",in:"A P B",d:"Premi pugno e calcio insieme: Kenshiro scatena una raffica di calci e spazza via tutti i nemici vicini. Durante la mossa è invincibile.",tags:[["-2 HP a tutti",""],["Costa 1/8 di vita","y"],["Ricarica 10 s","y"]]},
+    {gif:"grab-throw",t:"PRESA + PUGNO",in:"TO TH A",d:"Cammina contro un nemico tenendo la direzione verso di lui: lo afferri per la testa. Con il pugno lo lanci come un proiettile e toglie 1 HP a ogni nemico che travolge. All'arrivo perde 1 HP e sopra la testa parte il conto alla rovescia 3-2-1… poi esplode.",tags:[["Lancio",""],["-1 HP",""],["Timer 3-2-1","g"]]},
+    {gif:"grab-kick",t:"PRESA + CALCIO",in:"TO TH B",d:"Mentre lo tieni, il calcio lo spedisce in aria. Quando atterra perde 2 HP. Con Kenshiro a torso nudo parte anche il conto alla rovescia.",tags:[["In aria",""],["-2 HP",""]]},
+    {gif:"shield",t:"SCUDO UMANO",in:"TO",d:"Il nemico che tieni ti fa da scudo: i colpi e i proiettili che arrivano da davanti li prende lui (1 HP a colpo). Girati per parare dall'altro lato, poi lancialo con il pugno. Dopo 5 secondi si libera; con il salto lo lasci andare.",tags:[["Para colpi e proiettili","g"],["5 s di presa","y"],["C = lascia","y"]]},
+    {gif:"projectiles",t:"PROIETTILI",in:"A",d:"I nemici lanciano e sparano di tutto. Colpisci i proiettili mentre volano verso di te: li rispedisci indietro contro i nemici.",tags:[["Tempismo","y"],["Rispediscili","g"]]}
+  ],
+  tips:[
+    ["TORSO NUDO","Quando la barra POWER arriva al segno Kenshiro si strappa i vestiti: ogni colpo mette il conto alla rovescia 3-2-1 sulla testa dei nemici."],
+    ["2 GIOCATORI","Nella schermata dell'outfit premi START sul secondo controller. Attenti al fuoco amico: nella classifica finale conta!"],
+    ["BOSS","Boss e mini-boss non si possono afferrare: lì contano tempismo, salti e colpo speciale."]
+  ],
+  feat_title:"NOVITÀ",feat_lead:"Il classico del 1989 si giocava su un solo piano. Adesso ogni strada, ogni boss e ogni capitolo sono stati rifatti.",
+  feats:[
+    ["2.5D","MOVIMENTO IN PROFONDITÀ","Kenshiro e i nemici si muovono su e giù per tutta la strada."],
+    ["AI","NEMICI PIÙ FURBI","Ognuno ha la sua intelligenza artificiale e la sua barra di energia."],
+    ["GRAB","PRENDI E LANCIA","Afferra, trascina, lancia, usa i nemici come scudo."],
+    ["A+B","MOSSA SPECIALE","Pugno + calcio: spazza via tutti quelli intorno."],
+    ["GORE","PIÙ SANGUE","In ogni livello e contro ogni boss. Ritratti che sanguinano."],
+    ["2P","2 GIOCATORI","Insieme, ognuno con vita, power, vite e punteggio suoi."],
+    ["VS","DUELLI P1 VS P2","Sfidatevi nelle arene dei boss."],
+    ["x8","8 LOOK","Vestito blu o nero, occhiali, barba."],
+    ["SKIP","NIENTE LABIRINTI","Gli stage labirinto ti portano dritto alla storia."],
+    ["ANIME","SCENE ANIME","Nuova intro e scene in pixel art dopo i grandi boss."],
+    ["FM","LA MUSICA","Le sigle dell'anime rifatte per il chip YM2612."],
+    ["3L","3 LINGUE","Inglese, giapponese e italiano."]
+  ],
+  screens_title:"IMMAGINI",screens_lead:"Clicca per ingrandire.",
+  cap:{title:"Schermata del titolo",blood:"Più sangue",knives:"Rimanda i proiettili","two-players":"2 giocatori insieme",duel:"P1 contro P2","boss-bask":"Ogni boss ricostruito","no-labyrinth":"Niente labirinti infiniti",cutscene:"Scene anime in pixel art",outfit:"Scegli il tuo Kenshiro",language:"3 lingue","boss-arena":"Nuove arene","boss-pillars":"Boss animati"},
+  dl_lead:"Qui trovi solo la patch, non il gioco. Ti serve la tua copia della ROM giapponese originale: il patcher qui sotto la controlla e crea la ROM della Perfect Edition direttamente nel tuo browser. Nessun file viene caricato online.",
+  drop_title:"TRASCINA QUI LA ROM",drop_sub:"oppure clicca per sceglierla · .bin .md .gen .smd o .zip",
+  btn_patch:"⬇ CREA LA ROM",
+  owner:"⚠ Applicando la patch <b>dichiari di possedere una copia originale</b> di Hokuto no Ken per Mega Drive e di usare un backup personale della tua cartuccia. Questo sito non distribuisce ROM.",
+  dl_alt:"Preferisci patchare da solo (Floating IPS, Lunar IPS, RomPatcher)?",dl_ips:"Scarica il file .ips",
+  req_title:"ROM RICHIESTA",req_game:"Gioco",req_file:"File",req_size:"Dimensione",
+  req_note:"Non funziona con la versione americana \"Last Battle\", con altre hack o con ROM già patchate. Le ROM .smd e con header da 512 byte vengono convertite in automatico.",
+  play_title:"COME GIOCARE",
+  play1:"Emulatori: BlastEm, Genesis Plus GX (RetroArch), Ares, Kega Fusion.",
+  play2:"Console vera: flashcart (es. Mega EverDrive). La ROM è da 4 MB.",
+  play3:"Per il 2 giocatori collega un secondo controller.",
+  sup_title:"SUPPORTA IL PROGETTO",
+  sup_lead:"HNK2 – Perfect Edition è e resterà gratis. Se ti è piaciuta e vuoi offrirmi un caffè per le ore passate a ricostruirla, una donazione è sempre apprezzata, ma non è mai obbligatoria.",
+  btn_pp:"♥ DONA CON PAYPAL",btn_kofi:"☕ KO-FI",
+  cred_title:"CREDITI",
+  cred1:"<b>Metodico</b>: mod, programmazione, grafica, musica, trailer",
+  cred2:"Gioco originale: Hokuto no Ken (Mega Drive, 1989) © Sega",
+  cred3:"Hokuto no Ken © Buronson, Tetsuo Hara / Shueisha · Toei Animation · Fuji TV",
+  disc_title:"NOTE LEGALI",
+  disc:"Progetto amatoriale non ufficiale, senza scopo di lucro e senza alcun legame con Sega, Shueisha, Toei Animation o i titolari dei diritti. Qui viene distribuita solo una patch: nessuna ROM o file protetto da copyright è ospitato su questo sito. Per usarla devi possedere una copia originale del gioco. Le donazioni sostengono il tempo dedicato al progetto e non sono un acquisto.",
+  soon:"IN ARRIVO",
+  st_idle:"In attesa della ROM…",st_reading:"Lettura del file…",st_zipnone:"Nello .zip non c'è nessuna ROM Mega Drive (.bin .md .gen .smd).",
+  st_ok:"✔ ROM originale corretta. Premi il pulsante per creare la Perfect Edition.",
+  st_bad:"✖ Questa non è la ROM richiesta. CRC32 trovato: {crc} (atteso {exp}). Serve la versione giapponese originale, non modificata.",
+  st_conv:" (convertita da formato {fmt})",st_nopatch:"La patch non è ancora disponibile: torna presto!",
+  st_patching:"Applicazione della patch…",st_done:"✔ Fatto! Scaricata \"{name}\" · CRC32 {crc}",
+  st_resbad:"⚠ La ROM è stata creata ma il suo CRC32 ({crc}) non è quello atteso ({exp}). Ricarica la pagina e riprova.",
+  st_err:"Errore: {msg}"
+},
+en:{
+  cnt_label:"ROMS PATCHED",c_sys:"MEGA DRIVE / GENESIS",c_lang:"ENG · JAP · ITA",w_trailer:"TRAILER",w_download:"DOWNLOAD",nav_moves:"MOVE LIST",nav_features:"FEATURES",nav_screens:"SCREENS",nav_support:"SUPPORT",
+  push:"▶ PRESS START ◀",
+  tagline:"Hokuto no Ken 2 for Mega Drive, rebuilt from the ground up as a 2.5D side-scrolling beat 'em up: streets you walk into in depth, enemies with their own AI and life, grabs, special moves and 2 players.",
+  b_players:"1–2 PLAYERS",b_free:"FREE · IPS PATCH",cta_download:"▶ DOWNLOAD",
+  trailer_lead:"The mod that the greatest Hokuto no Ken game deserves.",
+  moves_lead:"Kenshiro's controls and moves. Every animation is real gameplay: below it you see the stick and the buttons pressed at the right moment.",
+  keys:[["ANY","Move in 8 directions: ↑ and ↓ walk into the depth of the street"],["A","Punch"],["B","Kick"],["C","Jump"],["ST","Pause · on controller 2 it brings in the second player"]],
+  moves:[
+    {gif:"special",t:"SPECIAL MOVE",in:"A P B",d:"Press punch and kick together: Kenshiro unleashes a flurry of kicks and blows away every enemy around him. He is invincible during the move.",tags:[["-2 HP to all",""],["Costs 1/8 life","y"],["10 s cooldown","y"]]},
+    {gif:"grab-throw",t:"GRAB + PUNCH",in:"TO TH A",d:"Walk into an enemy while holding the direction towards him: you grab him by the head. Punch to throw him like a projectile: he takes 1 HP off every enemy he crashes into. When he lands he loses 1 HP and a 3-2-1 countdown starts over his head… then he explodes.",tags:[["Throw",""],["-1 HP",""],["3-2-1 timer","g"]]},
+    {gif:"grab-kick",t:"GRAB + KICK",in:"TO TH B",d:"While you hold him, a kick sends him flying up. When he lands he loses 2 HP. With bare-chested Kenshiro the countdown starts too.",tags:[["Airborne",""],["-2 HP",""]]},
+    {gif:"shield",t:"HUMAN SHIELD",in:"TO",d:"The enemy you hold is your shield: hits and projectiles coming from the front hit him instead (1 HP per hit). Turn around to block from the other side, then throw him with a punch. After 5 seconds he breaks free; jumping lets him go.",tags:[["Blocks hits and bullets","g"],["5 s grab","y"],["C = release","y"]]},
+    {gif:"projectiles",t:"PROJECTILES",in:"A",d:"Enemies throw and shoot all kinds of things at you. Hit the projectiles while they fly at you to send them back at the enemies.",tags:[["Timing","y"],["Send them back","g"]]}
+  ],
+  tips:[
+    ["BARE CHEST","When the POWER bar reaches the mark, Kenshiro tears his clothes off: every hit puts the 3-2-1 countdown over the enemies' heads."],
+    ["2 PLAYERS","On the outfit screen press START on the second controller. Watch out for friendly fire: it counts on the final results!"],
+    ["BOSSES","Bosses and mini-bosses can't be grabbed: there it's all about timing, jumps and the special move."]
+  ],
+  feat_title:"FEATURES",feat_lead:"The 1989 classic was played on one flat plane. Now every street, every boss and every chapter has been rebuilt.",
+  feats:[
+    ["2.5D","MOVE IN DEPTH","Kenshiro and the enemies walk up and down every street."],
+    ["AI","SMARTER ENEMIES","Each one with its own AI and its own life bar."],
+    ["GRAB","GRAB AND THROW","Grab, carry, throw, use enemies as a shield."],
+    ["A+B","SPECIAL MOVE","Punch + kick: blow everyone around you away."],
+    ["GORE","MORE BLOOD","In every stage and against every boss. Portraits that bleed."],
+    ["2P","2 PLAYERS","Together, each with their own life, power, lives and score."],
+    ["VS","P1 VS P2 DUELS","Fight each other in the boss arenas."],
+    ["x8","8 LOOKS","Blue or black outfit, glasses, beard."],
+    ["SKIP","NO LABYRINTHS","Labyrinth stages take you straight to the story."],
+    ["ANIME","ANIME SCENES","New intro and pixel art cutscenes after the great bosses."],
+    ["FM","THE MUSIC","The anime songs remade for the YM2612 chip."],
+    ["3L","3 LANGUAGES","English, Japanese and Italian."]
+  ],
+  screens_title:"SCREENS",screens_lead:"Click to enlarge.",
+  cap:{title:"Title screen",blood:"More blood",knives:"Send projectiles back","two-players":"2 players together",duel:"P1 vs P2","boss-bask":"Every boss rebuilt","no-labyrinth":"No endless labyrinths",cutscene:"Pixel art anime scenes",outfit:"Choose your Kenshiro",language:"3 languages","boss-arena":"New arenas","boss-pillars":"Animated bosses"},
+  dl_lead:"This page only hosts the patch, not the game. You need your own copy of the original Japanese ROM: the patcher below checks it and builds the Perfect Edition ROM right in your browser. Nothing is uploaded anywhere.",
+  drop_title:"DROP THE ROM HERE",drop_sub:"or click to choose it · .bin .md .gen .smd or .zip",
+  btn_patch:"⬇ BUILD THE ROM",
+  owner:"⚠ By applying the patch <b>you declare that you own an original copy</b> of Hokuto no Ken for Mega Drive and that you are using a personal backup of your own cartridge. This site does not distribute ROMs.",
+  dl_alt:"Prefer to patch it yourself (Floating IPS, Lunar IPS, RomPatcher)?",dl_ips:"Download the .ips file",
+  req_title:"REQUIRED ROM",req_game:"Game",req_file:"File",req_size:"Size",
+  req_note:"It does not work with the US version \"Last Battle\", with other hacks or with already patched ROMs. .smd ROMs and ROMs with a 512-byte header are converted automatically.",
+  play_title:"HOW TO PLAY",
+  play1:"Emulators: BlastEm, Genesis Plus GX (RetroArch), Ares, Kega Fusion.",
+  play2:"Real hardware: a flashcart (e.g. Mega EverDrive). The ROM is 4 MB.",
+  play3:"For 2 players, plug in a second controller.",
+  sup_title:"SUPPORT THE PROJECT",
+  sup_lead:"HNK2 – Perfect Edition is and will stay free. If you enjoyed it and want to buy me a coffee for the hours spent rebuilding it, a donation is always appreciated, but never required.",
+  btn_pp:"♥ DONATE WITH PAYPAL",btn_kofi:"☕ KO-FI",
+  cred_title:"CREDITS",
+  cred1:"<b>Metodico</b>: mod, programming, graphics, music, trailer",
+  cred2:"Original game: Hokuto no Ken (Mega Drive, 1989) © Sega",
+  cred3:"Hokuto no Ken © Buronson, Tetsuo Hara / Shueisha · Toei Animation · Fuji TV",
+  disc_title:"LEGAL",
+  disc:"Unofficial, non-profit fan project, not affiliated with Sega, Shueisha, Toei Animation or any rights holder. Only a patch is distributed here: no ROM or copyrighted game file is hosted on this site. You must own an original copy of the game to use it. Donations support the time spent on the project and are not a purchase.",
+  soon:"COMING SOON",
+  st_idle:"Waiting for the ROM…",st_reading:"Reading file…",st_zipnone:"The .zip contains no Mega Drive ROM (.bin .md .gen .smd).",
+  st_ok:"✔ Correct original ROM. Press the button to build the Perfect Edition.",
+  st_bad:"✖ This is not the required ROM. CRC32 found: {crc} (expected {exp}). You need the original, unmodified Japanese version.",
+  st_conv:" (converted from {fmt} format)",st_nopatch:"The patch is not available yet: check back soon!",
+  st_patching:"Applying patch…",st_done:"✔ Done! Downloaded \"{name}\" · CRC32 {crc}",
+  st_resbad:"⚠ The ROM was built but its CRC32 ({crc}) is not the expected one ({exp}). Reload the page and try again.",
+  st_err:"Error: {msg}"
+},
+ja:{
+  cnt_label:"回パッチ適用",c_sys:"メガドライブ / ジェネシス",c_lang:"英語・日本語・イタリア語",w_trailer:"トレーラー",w_download:"ダウンロード",nav_moves:"技表",nav_features:"新要素",nav_screens:"画像",nav_support:"支援",
+  push:"▶ スタートボタンを押せ ◀",
+  tagline:"メガドライブ版『北斗の拳』を2.5Dの横スクロールアクションとしてゼロから作り直したMODです。奥行きのあるステージ、それぞれ思考と体力を持つ敵、つかみ技、必殺技、そして2人同時プレイ。",
+  b_players:"1〜2人用",b_free:"無料・IPSパッチ",cta_download:"▶ ダウンロード",
+  trailer_lead:"最高の北斗の拳ゲームにふさわしいMOD。",
+  moves_lead:"ケンシロウの操作と技。アニメーションはすべて実際のゲーム画面です。下にはレバーとボタンが正しいタイミングで表示されます。",
+  keys:[["ANY","8方向に移動：↑と↓で画面の奥・手前へ移動"],["A","パンチ"],["B","キック"],["C","ジャンプ"],["ST","ポーズ・2コンで押すと2人目が参加"]],
+  moves:[
+    {gif:"special",t:"必殺技",in:"A P B",d:"パンチとキックを同時押し：ケンシロウが連続蹴りを放ち、周りの敵を全員吹き飛ばす。技の間は無敵。",tags:[["全員に-2 HP",""],["体力の1/8を消費","y"],["再使用まで10秒","y"]]},
+    {gif:"grab-throw",t:"つかみ + パンチ",in:"TO TH A",d:"敵の方向にレバーを入れたまま歩いて近づくと、頭をつかむ。パンチで弾丸のように投げ飛ばし、ぶつかった敵から1 HPずつ奪う。着地すると1 HP減り、頭上で3-2-1のカウントダウンが始まり…やがて爆発する。",tags:[["投げ",""],["-1 HP",""],["3-2-1 タイマー","g"]]},
+    {gif:"grab-kick",t:"つかみ + キック",in:"TO TH B",d:"つかんだ敵をキックで空中へ蹴り上げる。着地すると2 HP減る。上半身裸のケンシロウならカウントダウンも始まる。",tags:[["空中へ",""],["-2 HP",""]]},
+    {gif:"shield",t:"人間の盾",in:"TO",d:"つかんだ敵は盾になる。正面からの攻撃や飛び道具はその敵が受ける（1発につき1 HP）。振り向けば反対側もガードでき、最後はパンチで投げ飛ばせる。5秒経つと敵は振りほどき、ジャンプで手を放す。",tags:[["攻撃と飛び道具を防ぐ","g"],["つかみは5秒","y"],["C = 放す","y"]]},
+    {gif:"projectiles",t:"飛び道具",in:"A",d:"敵はいろいろな物を投げたり撃ったりしてくる。飛んでくる飛び道具を打ち返して、敵に跳ね返そう。",tags:[["タイミング","y"],["打ち返す","g"]]}
+  ],
+  tips:[
+    ["上半身裸","POWERゲージが目盛りに達するとケンシロウは服を破り捨てる。すべての攻撃で敵の頭上に3-2-1のカウントダウンが付く。"],
+    ["2人プレイ","衣装選択画面で2コンのSTARTを押す。味方への攻撃に注意：最後の成績に反映される！"],
+    ["ボス","ボスと中ボスはつかめない。タイミング、ジャンプ、必殺技で戦おう。"]
+  ],
+  feat_title:"新要素",feat_lead:"1989年のオリジナルは平面だけのゲームだった。今はすべての道、すべてのボス、すべての章が作り直されている。",
+  feats:[
+    ["2.5D","奥行き移動","ケンシロウも敵も、道の奥と手前を自由に動く。"],
+    ["AI","賢くなった敵","それぞれが独自の思考と体力ゲージを持つ。"],
+    ["GRAB","つかみと投げ","つかむ、運ぶ、投げる、敵を盾にする。"],
+    ["A+B","必殺技","パンチ + キック：周りの敵を全員吹き飛ばす。"],
+    ["GORE","流血増量","すべてのステージ、すべてのボスで。血に染まる顔グラフィック。"],
+    ["2P","2人同時プレイ","それぞれ体力、パワー、残機、スコアを持つ。"],
+    ["VS","1P対2P","ボスのアリーナで対決できる。"],
+    ["x8","8種類の見た目","青か黒の服、サングラス、ひげ。"],
+    ["SKIP","迷路なし","迷路ステージはすぐに物語の続きへ進む。"],
+    ["ANIME","アニメシーン","新しいオープニングと、ボス戦後のドット絵シーン。"],
+    ["FM","音楽","アニメの主題歌をYM2612音源で再現。"],
+    ["3L","3か国語","英語、日本語、イタリア語。"]
+  ],
+  screens_title:"画像",screens_lead:"クリックで拡大。",
+  cap:{title:"タイトル画面",blood:"流血増量",knives:"飛び道具を打ち返す","two-players":"2人同時プレイ",duel:"1P対2P","boss-bask":"全ボスを作り直し","no-labyrinth":"終わらない迷路はもうない",cutscene:"ドット絵のアニメシーン",outfit:"ケンシロウを選べ",language:"3か国語","boss-arena":"新しいアリーナ","boss-pillars":"動くボス"},
+  dl_lead:"このページで配布しているのはパッチだけで、ゲーム本体ではありません。オリジナルの日本版ROMが必要です。下のパッチャーがROMを確認し、ブラウザの中でパーフェクトエディションのROMを作成します。ファイルはどこにもアップロードされません。",
+  drop_title:"ここにROMをドロップ",drop_sub:"またはクリックして選択 · .bin .md .gen .smd .zip",
+  btn_patch:"⬇ ROMを作成",
+  owner:"⚠ パッチを当てることで、<b>メガドライブ版『北斗の拳』の正規品を所有している</b>こと、そして自分のカートリッジから吸い出したバックアップを使用していることを表明したものとみなします。このサイトはROMを配布していません。",
+  dl_alt:"自分でパッチを当てたい場合（Floating IPS、Lunar IPS、RomPatcher）は",dl_ips:".ipsファイルをダウンロード",
+  req_title:"必要なROM",req_game:"ゲーム",req_file:"ファイル",req_size:"サイズ",
+  req_note:"北米版『Last Battle』、他の改造版、すでにパッチを当てたROMでは動作しません。.smd形式や512バイトのヘッダー付きROMは自動で変換されます。",
+  play_title:"遊び方",
+  play1:"エミュレーター：BlastEm、Genesis Plus GX（RetroArch）、Ares、Kega Fusion。",
+  play2:"実機：フラッシュカート（例：Mega EverDrive）。ROMは4MBです。",
+  play3:"2人プレイには2つ目のコントローラーを接続してください。",
+  sup_title:"プロジェクトを支援",
+  sup_lead:"HNK2 – パーフェクトエディションは無料で、これからも無料です。気に入っていただけたら、作り直しにかけた時間へのコーヒー代として寄付をいただけると嬉しいです。もちろん任意です。",
+  btn_pp:"♥ PAYPALで寄付",btn_kofi:"☕ KO-FI",
+  cred_title:"クレジット",
+  cred1:"<b>Metodico</b>：MOD、プログラム、グラフィック、音楽、トレーラー",
+  cred2:"オリジナル：北斗の拳（メガドライブ、1989年）© セガ",
+  cred3:"北斗の拳 © 武論尊・原哲夫 / 集英社・東映アニメーション・フジテレビ",
+  disc_title:"注意事項",
+  disc:"非公式・非営利のファンプロジェクトであり、セガ、集英社、東映アニメーション、その他の権利者とは一切関係ありません。ここで配布しているのはパッチのみで、ROMや著作権のあるゲームファイルは置いていません。使用するにはゲームの正規品を所有している必要があります。寄付はプロジェクトにかけた時間への支援であり、購入ではありません。",
+  soon:"近日公開",
+  st_idle:"ROMを待っています…",st_reading:"ファイルを読み込み中…",st_zipnone:".zipの中にメガドライブのROM（.bin .md .gen .smd）がありません。",
+  st_ok:"✔ 正しいオリジナルROMです。ボタンを押してパーフェクトエディションを作成してください。",
+  st_bad:"✖ 必要なROMではありません。CRC32：{crc}（正しくは {exp}）。改造されていない日本版オリジナルが必要です。",
+  st_conv:"（{fmt}形式から変換）",st_nopatch:"パッチはまだ公開されていません。もうしばらくお待ちください！",
+  st_patching:"パッチを適用中…",st_done:"✔ 完了！「{name}」をダウンロードしました · CRC32 {crc}",
+  st_resbad:"⚠ ROMは作成されましたが、CRC32（{crc}）が正しい値（{exp}）と一致しません。ページを再読み込みしてやり直してください。",
+  st_err:"エラー：{msg}"
+}};
+const SHOTS=["title","two-players","blood","knives","boss-bask","duel","no-labyrinth","cutscene","outfit","boss-pillars","boss-arena","language"];
+let LANG="en";
+try{const s=localStorage.getItem("hnk2-lang");if(s)LANG=s;}catch(e){}
+const t=(k,v={})=>String(T[LANG][k]??k).replace(/\{(\w+)\}/g,(_,x)=>v[x]??"");
+const inp=s=>s.split(" ").map(x=>K[x]??`<span class="k d">${x}</span>`).join("");
+const state={rom:null,msgKey:"st_idle",msgVars:{},msgCls:""};
+
+function render(){
+  const L=T[LANG];
+  document.documentElement.lang=LANG;
+  document.querySelectorAll("[data-i18n]").forEach(el=>{if(L[el.dataset.i18n]!==undefined)el.innerHTML=L[el.dataset.i18n];});
+  document.querySelectorAll(".lang button").forEach(b=>b.classList.toggle("on",b.dataset.lang===LANG));
+  document.getElementById("keys").innerHTML=L.keys.map(([k,d])=>`<div>${K[k]}</div><div>${d}</div>`).join("");
+  document.getElementById("movegrid").innerHTML=L.moves.map(m=>`
+    <article class="pbox move">
+      <div class="gif"><img class="pix" loading="lazy" src="moves/${m.gif}.gif" alt="${m.t}" width="320" height="276"></div>
+      <div class="body">
+        <h3>${m.t}</h3>
+        <div class="input">${inp(m.in)}</div>
+        <p>${m.d}</p>
+        <div class="tags">${m.tags.map(([x,c])=>`<span class="tag ${c}">${x}</span>`).join("")}</div>
+      </div>
+    </article>`).join("");
+  document.getElementById("tips").innerHTML=L.tips.map(([h,p])=>`<div class="pbox tip"><h4>▸ ${h}</h4><p>${p}</p></div>`).join("");
+  document.getElementById("feat").innerHTML=L.feats.map(([i,h,p])=>`<div class="pbox f"><span class="ic">${i}</span><h3>${h}</h3><p>${p}</p></div>`).join("");
+  document.getElementById("gal").innerHTML=SHOTS.map(n=>`<figure data-src="img/${n}.jpg"><img class="pix" loading="lazy" src="img/${n}.jpg" alt="${L.cap[n]}" width="640" height="448"><figcaption>${L.cap[n]}</figcaption></figure>`).join("");
+  document.getElementById("v-badge").textContent=CONFIG.releaseDate?`${CONFIG.version} · ${CONFIG.releaseDate}`:`${CONFIG.version} · ${t("soon")}`;
+  document.getElementById("f-ver").textContent=`v${CONFIG.version}`;
+  setStatus(state.msgKey,state.msgVars,state.msgCls);
+}
+document.querySelectorAll(".lang button").forEach(b=>b.onclick=()=>{LANG=b.dataset.lang;try{localStorage.setItem("hnk2-lang",LANG)}catch(e){}render();});
+document.getElementById("gal").addEventListener("click",e=>{const f=e.target.closest("figure");if(!f)return;const lb=document.getElementById("lb");lb.querySelector("img").src=f.dataset.src;lb.classList.add("on");});
+document.getElementById("lb").onclick=e=>e.currentTarget.classList.remove("on");
+
+/* ---------- config → pagina ---------- */
+(function(){
+  const $=id=>document.getElementById(id);
+  $("r-name").textContent=CONFIG.baseName;
+  $("r-size").textContent=`${CONFIG.baseSize.toLocaleString("it-IT")} byte (512 KB)`;
+  $("r-crc").textContent=CONFIG.baseCRC32;$("r-md5").textContent=CONFIG.baseMD5;$("r-sha").textContent=CONFIG.baseSHA1;
+  $("ips-link").href=CONFIG.patchFile;
+  if(CONFIG.paypal)$("pp").href=CONFIG.paypal;else $("pp").classList.add("hide");
+  if(CONFIG.kofi)$("kofi").href=CONFIG.kofi;else $("kofi").classList.add("hide");
+  const vb=$("video-box");
+  if(CONFIG.youtubeId)vb.innerHTML=`<iframe src="https://www.youtube-nocookie.com/embed/${CONFIG.youtubeId}" title="Trailer" allowfullscreen allow="encrypted-media; picture-in-picture"></iframe>`;
+  else vb.innerHTML=`<video controls preload="none" poster="video/poster.jpg" src="video/trailer.mp4"></video>`;
+  const Lk=[];if(CONFIG.itch)Lk.push(`<a href="${CONFIG.itch}" target="_blank" rel="noopener">itch.io</a>`);
+  if(CONFIG.youtubeChannel)Lk.push(`<a href="${CONFIG.youtubeChannel}" target="_blank" rel="noopener">YouTube</a>`);
+  $("links-line").innerHTML=Lk.join(" · ");
+})();
+
+/* ---------- patcher ---------- */
+const CRC_T=(()=>{const t=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0;}return t;})();
+function crc32(u8){let c=0xFFFFFFFF;for(let i=0;i<u8.length;i++)c=CRC_T[(c^u8[i])&255]^(c>>>8);return((c^0xFFFFFFFF)>>>0).toString(16).toUpperCase().padStart(8,"0");}
+function setStatus(key,vars={},cls=""){
+  Object.assign(state,{msgKey:key,msgVars:vars,msgCls:cls});
+  const el=document.getElementById("status");
+  let txt=t(key,vars);if(vars.conv)txt+=t("st_conv",{fmt:vars.conv});
+  el.textContent=txt;el.className="status "+cls;
+}
+async function unzipFirstRom(buf){
+  const u8=new Uint8Array(buf),dv=new DataView(buf);
+  let eocd=-1;for(let i=u8.length-22;i>=Math.max(0,u8.length-65557);i--){if(dv.getUint32(i,true)===0x06054b50){eocd=i;break;}}
+  if(eocd<0)throw new Error("zip");
+  let p=dv.getUint32(eocd+16,true);const n=dv.getUint16(eocd+10,true);
+  for(let k=0;k<n;k++){
+    const method=dv.getUint16(p+10,true),csize=dv.getUint32(p+20,true),nl=dv.getUint16(p+28,true),el=dv.getUint16(p+30,true),cl=dv.getUint16(p+32,true),lo=dv.getUint32(p+42,true);
+    const name=new TextDecoder().decode(u8.subarray(p+46,p+46+nl));p+=46+nl+el+cl;
+    if(!/\.(bin|md|gen|smd)$/i.test(name))continue;
+    const ds=lo+30+dv.getUint16(lo+26,true)+dv.getUint16(lo+28,true);
+    const data=u8.slice(ds,ds+csize);
+    if(method===0)return data;
+    if(method===8){const s=new Blob([data]).stream().pipeThrough(new DecompressionStream("deflate-raw"));return new Uint8Array(await new Response(s).arrayBuffer());}
+  }
+  return null;
+}
+function deinterleaveSMD(u8){const out=new Uint8Array(u8.length);for(let b=0;b<u8.length;b+=16384){for(let i=0;i<8192;i++){out[b+i*2+1]=u8[b+i];out[b+i*2]=u8[b+8192+i];}}return out;}
+function normalize(u8){
+  const cands=[[u8,""]];
+  if(u8.length%16384===512){const h=u8.slice(512);cands.push([h,"header 512 byte"]);cands.push([deinterleaveSMD(h),"SMD"]);}
+  else if(u8.length%16384===0)cands.push([deinterleaveSMD(u8),"SMD"]);
+  for(const[c,fmt]of cands){const crc=crc32(c);if(crc===CONFIG.baseCRC32.toUpperCase())return{rom:c,crc,fmt};}
+  return{rom:null,crc:crc32(u8),fmt:""};
+}
+async function handle(file){
+  try{
+    setStatus("st_reading");state.rom=null;document.getElementById("go").disabled=true;
+    const buf=await file.arrayBuffer();let u8=new Uint8Array(buf);
+    if(/\.zip$/i.test(file.name)||(u8[0]===0x50&&u8[1]===0x4B)){u8=await unzipFirstRom(buf);if(!u8){setStatus("st_zipnone",{},"err");return;}}
+    const r=normalize(u8);
+    if(!r.rom){setStatus("st_bad",{crc:r.crc,exp:CONFIG.baseCRC32},"err");return;}
+    state.rom=r.rom;setStatus("st_ok",{conv:r.fmt},"ok");document.getElementById("go").disabled=false;
+  }catch(e){setStatus("st_err",{msg:e.message},"err");}
+}
+function applyIPS(rom,ips){
+  if(String.fromCharCode(...ips.subarray(0,5))!=="PATCH")throw new Error("IPS header");
+  let out=new Uint8Array(rom),p=5;
+  const grow=n=>{if(n>out.length){const o=new Uint8Array(n);o.set(out);out=o;}};
+  while(p<ips.length){
+    if(ips[p]===0x45&&ips[p+1]===0x4F&&ips[p+2]===0x46){
+      if(ips.length-(p+3)===3){const tr=(ips[p+3]<<16)|(ips[p+4]<<8)|ips[p+5];if(tr<out.length)out=out.slice(0,tr);else grow(tr);}
+      return out;
+    }
+    const off=(ips[p]<<16)|(ips[p+1]<<8)|ips[p+2],sz=(ips[p+3]<<8)|ips[p+4];p+=5;
+    if(sz===0){const n=(ips[p]<<8)|ips[p+1],v=ips[p+2];p+=3;grow(off+n);out.fill(v,off,off+n);}
+    else{grow(off+sz);out.set(ips.subarray(p,p+sz),off);p+=sz;}
+  }
+  throw new Error("IPS EOF");
+}
+async function go(){
+  if(!state.rom)return;
+  try{
+    setStatus("st_patching");
+    const res=await fetch(CONFIG.patchFile,{cache:"no-cache"});
+    if(!res.ok){setStatus("st_nopatch",{},"err");return;}
+    const out=applyIPS(state.rom,new Uint8Array(await res.arrayBuffer())),crc=crc32(out);
+    const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([out],{type:"application/octet-stream"}));
+    a.download=CONFIG.outputName;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+    if(CONFIG.resultCRC32&&crc!==CONFIG.resultCRC32.toUpperCase())setStatus("st_resbad",{crc,exp:CONFIG.resultCRC32},"err");
+    else{setStatus("st_done",{name:CONFIG.outputName,crc},"ok");countHit("patched");}
+  }catch(e){setStatus("st_err",{msg:e.message},"err");}
+}
+const drop=document.getElementById("drop"),fi=document.getElementById("file");
+drop.onclick=()=>fi.click();drop.onkeydown=e=>{if(e.key==="Enter"||e.key===" ")fi.click();};
+fi.onchange=()=>fi.files[0]&&handle(fi.files[0]);
+["dragenter","dragover"].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add("over");}));
+["dragleave","drop"].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove("over");}));
+drop.addEventListener("drop",e=>e.dataTransfer.files[0]&&handle(e.dataTransfer.files[0]));
+document.getElementById("go").onclick=go;
+document.getElementById("ips-link").addEventListener("click",()=>countHit("ips-downloads",true));
+
+/* ---------- contatore (Abacus: https://abacus.jasoncameron.dev) ---------- */
+const CNT_API="https://abacus.jasoncameron.dev";
+function showCount(v){
+  if(typeof v!=="number")return;
+  document.querySelectorAll(".cnt-n").forEach(e=>e.textContent=v.toLocaleString(LANG==="ja"?"ja-JP":LANG==="it"?"it-IT":"en-US"));
+  document.querySelectorAll(".cnt").forEach(e=>e.classList.remove("hide"));
+}
+function countHit(key,silent){
+  if(!CONFIG.counterNs)return;
+  // una volta per browser e per versione, così chi ripatcha non gonfia il numero
+  const flag="hnk2-counted-"+key+"-"+CONFIG.version;
+  try{if(localStorage.getItem(flag))return;localStorage.setItem(flag,"1");}catch(e){}
+  fetch(`${CNT_API}/hit/${CONFIG.counterNs}/${key}`).then(r=>r.json()).then(d=>{if(!silent)showCount(d.value);}).catch(()=>{});
+}
+if(CONFIG.counterNs){
+  fetch(`${CNT_API}/get/${CONFIG.counterNs}/patched`).then(r=>r.ok?r.json():{value:0}).then(d=>showCount(d.value||0)).catch(()=>{});
+}
+
+render();
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{if(!document.fonts.check('22px VT323'))document.body.classList.add("nofont");});
+</script>
+</body>
+</html>
