@@ -268,7 +268,7 @@ html[lang=ja] nav .links a{font-size:12px}
       <span class="chip" data-i18n="b_players"></span>
       <span class="chip" data-i18n="c_lang">ENG · JAP · ITA</span>
       <span class="chip" data-i18n="b_free"></span>
-      <span class="chip cnt hide">★ <b class="cnt-n">0</b> <span data-i18n="cnt_label"></span></span>
+      <span class="chip cnt">★ <b class="cnt-n">…</b> <span data-i18n="cnt_label"></span></span>
     </div>
     <div class="cta">
       <a class="btn" href="#download" data-i18n="cta_download">▶ SCARICA</a>
@@ -331,7 +331,7 @@ html[lang=ja] nav .links a{font-size:12px}
         <div class="status" id="status">…</div>
         <p class="owner" data-i18n="owner"></p>
         <button class="btn" id="go" disabled data-i18n="btn_patch">⬇</button>
-        <p class="cnt hide" style="margin:14px 0 0;color:var(--gold)">★ <b class="cnt-n">0</b> <span data-i18n="cnt_label"></span></p>
+        <p class="cnt" style="margin:14px 0 0;color:var(--gold)">★ <b class="cnt-n">…</b> <span data-i18n="cnt_label"></span></p>
         <p class="small" style="margin:14px 0 0"><span data-i18n="dl_alt"></span>
           <a id="ips-link" href="#" download data-i18n="dl_ips"></a></p>
         <p class="small" style="margin:10px 0 0"><span data-i18n="dl_itch"></span> <a id="itch-link" href="#" target="_blank" rel="noopener">itch.io ↗</a></p>
@@ -729,21 +729,29 @@ document.getElementById("ips-link").addEventListener("click",()=>countHit("ips-d
 
 /* ---------- contatore (Abacus: https://abacus.jasoncameron.dev) ---------- */
 const CNT_API="https://abacus.jasoncameron.dev";
+// il contatore è sempre visibile: mostra subito l'ultimo numero ricevuto e lo aggiorna quando il servizio risponde
+const CNT_CACHE="hnk2-last-count";
 function showCount(v){
   if(typeof v!=="number")return;
+  try{const old=+localStorage.getItem(CNT_CACHE)||0;if(v<old)v=old;localStorage.setItem(CNT_CACHE,String(v));}catch(e){}
   document.querySelectorAll(".cnt-n").forEach(e=>e.textContent=v.toLocaleString(LANG==="ja"?"ja-JP":LANG==="it"?"it-IT":"en-US"));
-  document.querySelectorAll(".cnt").forEach(e=>e.classList.remove("hide"));
 }
+function fetchT(url,ms){const c=new AbortController();const t=setTimeout(()=>c.abort(),ms);return fetch(url,{signal:c.signal,cache:"no-store"}).finally(()=>clearTimeout(t));}
 function countHit(key,silent){
   if(!CONFIG.counterNs)return;
   // una volta per browser e per versione, così chi ripatcha non gonfia il numero
   const flag="hnk2-counted-"+key+"-"+CONFIG.version;
   try{if(localStorage.getItem(flag))return;localStorage.setItem(flag,"1");}catch(e){}
-  fetch(`${CNT_API}/hit/${CONFIG.counterNs}/${key}`).then(r=>r.json()).then(d=>{if(!silent)showCount(d.value);}).catch(()=>{});
+  fetchT(`${CNT_API}/hit/${CONFIG.counterNs}/${key}`,20000).then(r=>r.json()).then(d=>{if(!silent)showCount(d.value);}).catch(()=>{});
 }
-if(CONFIG.counterNs){
-  fetch(`${CNT_API}/get/${CONFIG.counterNs}/patched`).then(r=>r.ok?r.json():{value:0}).then(d=>showCount(d.value||0)).catch(()=>{});
+function loadCount(tries){
+  if(!CONFIG.counterNs)return;
+  fetchT(`${CNT_API}/get/${CONFIG.counterNs}/patched`,12000).then(r=>{if(!r.ok)throw 0;return r.json();})
+    .then(d=>showCount(d.value||0))
+    .catch(()=>{if(tries>0)setTimeout(()=>loadCount(tries-1),8000);});
 }
+try{const c=+localStorage.getItem(CNT_CACHE);if(c)showCount(c);}catch(e){}
+loadCount(4);
 
 render();
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{if(!document.fonts.check('22px VT323'))document.body.classList.add("nofont");});
