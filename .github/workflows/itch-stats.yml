@@ -1,0 +1,39 @@
+# Legge ogni ora i download del gioco su itch.io e li salva in stats.json.
+# La chiave API resta nei Secrets del repository (ITCH_API_KEY) e non finisce mai nel sito.
+name: itch.io download counter
+
+on:
+  schedule:
+    - cron: "17 * * * *"   # ogni ora
+  workflow_dispatch:        # avvio manuale dal tab Actions
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read itch.io downloads
+        env:
+          ITCH_API_KEY: ${{ secrets.ITCH_API_KEY }}
+        run: |
+          set -euo pipefail
+          GAME_ID=5363035
+          N=$(curl -fsS -H "Authorization: Bearer $ITCH_API_KEY" https://api.itch.io/profile/games \
+              | jq -r --argjson id "$GAME_ID" '.games[] | select(.id==$id) | .downloads_count')
+          if ! [[ "$N" =~ ^[0-9]+$ ]]; then echo "Numero non valido"; exit 1; fi
+          # solo il numero dei download: nessun altro dato dell'account
+          printf '{"itch_downloads":%s}\n' "$N" > stats.json
+          cat stats.json
+
+      - name: Commit if changed
+        run: |
+          if git diff --quiet -- stats.json; then echo "Nessun cambiamento"; exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+          git add stats.json
+          git commit -m "Update itch.io download count"
+          git push
