@@ -46,6 +46,10 @@ const CONFIG = {
   // Trailer: se metti l'ID di YouTube usa quello, altrimenti il video nel sito
   // Contatore delle patch (servizio gratuito Abacus). Cambia il nome solo se vuoi ripartire da zero.
   counterNs:   "hnk2-perfect-edition-metodico",
+  // Numero minimo mostrato subito, mentre il contatore online risponde (aggiornalo ogni tanto a mano)
+  countFloor:  15,
+  // Download su itch.io: file aggiornato ogni ora da .github/workflows/itch-stats.yml
+  itchStats:   "https://raw.githubusercontent.com/bboymeth-cmd/hnk2/main/stats.json",
 
   youtubeId:   "yxDn07W8Ti4",
   // Link extra (lascia "" per nasconderli)
@@ -398,7 +402,7 @@ const K={
 /* ---------- testi IT / EN ---------- */
 const T = {
 it:{
-  dl_itch:"Lo trovi anche su",cnt_label:"ROM PATCHATE",c_sys:"MEGA DRIVE / GENESIS",c_lang:"ENG · JAP · ITA",w_trailer:"TRAILER",w_download:"DOWNLOAD",nav_moves:"MOSSE",nav_features:"CARATTERISTICHE",nav_screens:"IMMAGINI",nav_support:"SUPPORTA",
+  dl_itch:"Lo trovi anche su",cnt_label:"DOWNLOAD",c_sys:"MEGA DRIVE / GENESIS",c_lang:"ENG · JAP · ITA",w_trailer:"TRAILER",w_download:"DOWNLOAD",nav_moves:"MOSSE",nav_features:"CARATTERISTICHE",nav_screens:"IMMAGINI",nav_support:"SUPPORTA",
   push:"▶ PREMI START ◀",
   tagline:"Hokuto no Ken 2 per Mega Drive, ricostruito da zero come un picchiaduro a scorrimento in 2.5D: strade da percorrere in profondità, nemici con la loro intelligenza e la loro energia, prese, mosse speciali e 2 giocatori.",
   b_players:"1–2 GIOCATORI",b_free:"GRATIS · PATCH IPS",cta_download:"▶ SCARICA",
@@ -464,7 +468,7 @@ it:{
   st_err:"Errore: {msg}"
 },
 en:{
-  dl_itch:"Also available on",cnt_label:"ROMS PATCHED",c_sys:"MEGA DRIVE / GENESIS",c_lang:"ENG · JAP · ITA",w_trailer:"TRAILER",w_download:"DOWNLOAD",nav_moves:"MOVE LIST",nav_features:"FEATURES",nav_screens:"SCREENS",nav_support:"SUPPORT",
+  dl_itch:"Also available on",cnt_label:"DOWNLOADS",c_sys:"MEGA DRIVE / GENESIS",c_lang:"ENG · JAP · ITA",w_trailer:"TRAILER",w_download:"DOWNLOAD",nav_moves:"MOVE LIST",nav_features:"FEATURES",nav_screens:"SCREENS",nav_support:"SUPPORT",
   push:"▶ PRESS START ◀",
   tagline:"Hokuto no Ken 2 for Mega Drive, rebuilt from the ground up as a 2.5D side-scrolling beat 'em up: streets you walk into in depth, enemies with their own AI and life, grabs, special moves and 2 players.",
   b_players:"1–2 PLAYERS",b_free:"FREE · IPS PATCH",cta_download:"▶ DOWNLOAD",
@@ -530,7 +534,7 @@ en:{
   st_err:"Error: {msg}"
 },
 ja:{
-  dl_itch:"こちらでも配布中：",cnt_label:"回パッチ適用",c_sys:"メガドライブ / ジェネシス",c_lang:"英語・日本語・イタリア語",w_trailer:"トレーラー",w_download:"ダウンロード",nav_moves:"技表",nav_features:"新要素",nav_screens:"画像",nav_support:"支援",
+  dl_itch:"こちらでも配布中：",cnt_label:"ダウンロード",c_sys:"メガドライブ / ジェネシス",c_lang:"英語・日本語・イタリア語",w_trailer:"トレーラー",w_download:"ダウンロード",nav_moves:"技表",nav_features:"新要素",nav_screens:"画像",nav_support:"支援",
   push:"▶ スタートボタンを押せ ◀",
   tagline:"メガドライブ版『北斗の拳』を2.5Dの横スクロールアクションとしてゼロから作り直したMODです。奥行きのあるステージ、それぞれ思考と体力を持つ敵、つかみ技、必殺技、そして2人同時プレイ。",
   b_players:"1〜2人用",b_free:"無料・IPSパッチ",cta_download:"▶ ダウンロード",
@@ -729,29 +733,36 @@ document.getElementById("ips-link").addEventListener("click",()=>countHit("ips-d
 
 /* ---------- contatore (Abacus: https://abacus.jasoncameron.dev) ---------- */
 const CNT_API="https://abacus.jasoncameron.dev";
-// il contatore è sempre visibile: mostra subito l'ultimo numero ricevuto e lo aggiorna quando il servizio risponde
-const CNT_CACHE="hnk2-last-count";
+// contatore DOWNLOAD sempre visibile = ROM patchate qui + .ips scaricati qui + download su itch.io
+// (itch: stats.json aggiornato ogni ora da GitHub Actions, la chiave resta nei Secrets di GitHub)
+const CNT_CACHE="hnk2-last-total";
+const PARTS={patched:null,ips:null,itch:null};
 function showCount(v){
   if(typeof v!=="number")return;
   try{const old=+localStorage.getItem(CNT_CACHE)||0;if(v<old)v=old;localStorage.setItem(CNT_CACHE,String(v));}catch(e){}
   document.querySelectorAll(".cnt-n").forEach(e=>e.textContent=v.toLocaleString(LANG==="ja"?"ja-JP":LANG==="it"?"it-IT":"en-US"));
 }
+function setPart(k,v){if(typeof v!=="number")return;PARTS[k]=v;showCount(Object.values(PARTS).reduce((a,x)=>a+(x||0),0));}
 function fetchT(url,ms){const c=new AbortController();const t=setTimeout(()=>c.abort(),ms);return fetch(url,{signal:c.signal,cache:"no-store"}).finally(()=>clearTimeout(t));}
 function countHit(key,silent){
   if(!CONFIG.counterNs)return;
   // una volta per browser e per versione, così chi ripatcha non gonfia il numero
   const flag="hnk2-counted-"+key+"-"+CONFIG.version;
   try{if(localStorage.getItem(flag))return;localStorage.setItem(flag,"1");}catch(e){}
-  fetchT(`${CNT_API}/hit/${CONFIG.counterNs}/${key}`,20000).then(r=>r.json()).then(d=>{if(!silent)showCount(d.value);}).catch(()=>{});
+  const part=key==="patched"?"patched":"ips";
+  fetchT(`${CNT_API}/hit/${CONFIG.counterNs}/${key}`,40000).then(r=>r.json()).then(d=>setPart(part,d.value)).catch(()=>{});
 }
-function loadCount(tries){
-  if(!CONFIG.counterNs)return;
-  fetchT(`${CNT_API}/get/${CONFIG.counterNs}/patched`,12000).then(r=>{if(!r.ok)throw 0;return r.json();})
-    .then(d=>showCount(d.value||0))
-    .catch(()=>{if(tries>0)setTimeout(()=>loadCount(tries-1),8000);});
+function loadPart(part,url,pick,tries){
+  fetchT(url,40000).then(r=>{if(!r.ok)throw 0;return r.json();})
+    .then(d=>setPart(part,pick(d)))
+    .catch(()=>{if(tries>0)setTimeout(()=>loadPart(part,url,pick,tries-1),5000);});
 }
-try{const c=+localStorage.getItem(CNT_CACHE);if(c)showCount(c);}catch(e){}
-loadCount(4);
+showCount(CONFIG.countFloor||0);
+if(CONFIG.counterNs){
+  loadPart("patched",`${CNT_API}/get/${CONFIG.counterNs}/patched`,d=>d.value,3);
+  loadPart("ips",`${CNT_API}/get/${CONFIG.counterNs}/ips-downloads`,d=>d.value,3);
+}
+if(CONFIG.itchStats)loadPart("itch",CONFIG.itchStats+"?t="+Date.now(),d=>d.itch_downloads,3);
 
 render();
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{if(!document.fonts.check('22px VT323'))document.body.classList.add("nofont");});
