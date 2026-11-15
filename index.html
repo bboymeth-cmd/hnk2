@@ -47,7 +47,7 @@ const CONFIG = {
   // Contatore delle patch (servizio gratuito Abacus). Cambia il nome solo se vuoi ripartire da zero.
   counterNs:   "hnk2-perfect-edition-metodico",
   // Ultimi valori noti, mostrati subito mentre i contatori online rispondono
-  countBase:   {patched:9, ips:6, itch:64},
+  countBase:   {patched:10, ips:7, itch:72},
   // Download su itch.io: file aggiornato ogni ora da .github/workflows/itch-stats.yml
   itchStats:   "https://raw.githubusercontent.com/bboymeth-cmd/hnk2/main/stats.json",
 
@@ -272,7 +272,8 @@ html[lang=ja] nav .links a{font-size:12px}
       <span class="chip" data-i18n="b_players"></span>
       <span class="chip" data-i18n="c_lang">ENG · JAP · ITA</span>
       <span class="chip" data-i18n="b_free"></span>
-      <span class="chip cnt">★ <b class="cnt-n">…</b> <span data-i18n="cnt_label"></span></span>
+      <span class="chip cnt">★ <b class="cnt-p">…</b> <span data-i18n="cnt_patched"></span></span>
+      <span class="chip cnt">⬇ <b class="cnt-d">…</b> <span data-i18n="cnt_label"></span></span>
     </div>
     <div class="cta">
       <a class="btn" href="#download" data-i18n="cta_download">▶ SCARICA</a>
@@ -335,7 +336,7 @@ html[lang=ja] nav .links a{font-size:12px}
         <div class="status" id="status">…</div>
         <p class="owner" data-i18n="owner"></p>
         <button class="btn" id="go" disabled data-i18n="btn_patch">⬇</button>
-        <p class="cnt" style="margin:14px 0 0;color:var(--gold)">★ <b class="cnt-n">…</b> <span data-i18n="cnt_label"></span></p>
+        <p class="cnt" style="margin:14px 0 0;color:var(--gold)">★ <b class="cnt-p">…</b> <span data-i18n="cnt_patched"></span> &nbsp;·&nbsp; ⬇ <b class="cnt-d">…</b> <span data-i18n="cnt_label"></span></p>
         <p class="small" style="margin:14px 0 0"><span data-i18n="dl_alt"></span>
           <a id="ips-link" href="#" download data-i18n="dl_ips"></a></p>
         <p class="small" style="margin:10px 0 0"><span data-i18n="dl_itch"></span> <a id="itch-link" href="#" target="_blank" rel="noopener">itch.io ↗</a></p>
@@ -402,7 +403,7 @@ const K={
 /* ---------- testi IT / EN ---------- */
 const T = {
 it:{
-  dl_itch:"Lo trovi anche su",cnt_label:"DOWNLOAD",c_sys:"MEGA DRIVE / GENESIS",c_lang:"ENG · JAP · ITA",w_trailer:"TRAILER",w_download:"DOWNLOAD",nav_moves:"MOSSE",nav_features:"CARATTERISTICHE",nav_screens:"IMMAGINI",nav_support:"SUPPORTA",
+  dl_itch:"Lo trovi anche su",cnt_label:"DOWNLOAD",cnt_patched:"ROM PATCHATE",c_sys:"MEGA DRIVE / GENESIS",c_lang:"ENG · JAP · ITA",w_trailer:"TRAILER",w_download:"DOWNLOAD",nav_moves:"MOSSE",nav_features:"CARATTERISTICHE",nav_screens:"IMMAGINI",nav_support:"SUPPORTA",
   push:"▶ PREMI START ◀",
   tagline:"Hokuto no Ken 2 per Mega Drive, ricostruito da zero come un picchiaduro a scorrimento in 2.5D: strade da percorrere in profondità, nemici con la loro intelligenza e la loro energia, prese, mosse speciali e 2 giocatori.",
   b_players:"1–2 GIOCATORI",b_free:"GRATIS · PATCH IPS",cta_download:"▶ SCARICA",
@@ -468,7 +469,7 @@ it:{
   st_err:"Errore: {msg}"
 },
 en:{
-  dl_itch:"Also available on",cnt_label:"DOWNLOADS",c_sys:"MEGA DRIVE / GENESIS",c_lang:"ENG · JAP · ITA",w_trailer:"TRAILER",w_download:"DOWNLOAD",nav_moves:"MOVE LIST",nav_features:"FEATURES",nav_screens:"SCREENS",nav_support:"SUPPORT",
+  dl_itch:"Also available on",cnt_label:"DOWNLOADS",cnt_patched:"ROMS PATCHED",c_sys:"MEGA DRIVE / GENESIS",c_lang:"ENG · JAP · ITA",w_trailer:"TRAILER",w_download:"DOWNLOAD",nav_moves:"MOVE LIST",nav_features:"FEATURES",nav_screens:"SCREENS",nav_support:"SUPPORT",
   push:"▶ PRESS START ◀",
   tagline:"Hokuto no Ken 2 for Mega Drive, rebuilt from the ground up as a 2.5D side-scrolling beat 'em up: streets you walk into in depth, enemies with their own AI and life, grabs, special moves and 2 players.",
   b_players:"1–2 PLAYERS",b_free:"FREE · IPS PATCH",cta_download:"▶ DOWNLOAD",
@@ -534,7 +535,7 @@ en:{
   st_err:"Error: {msg}"
 },
 ja:{
-  dl_itch:"こちらでも配布中：",cnt_label:"ダウンロード",c_sys:"メガドライブ / ジェネシス",c_lang:"英語・日本語・イタリア語",w_trailer:"トレーラー",w_download:"ダウンロード",nav_moves:"技表",nav_features:"新要素",nav_screens:"画像",nav_support:"支援",
+  dl_itch:"こちらでも配布中：",cnt_label:"ダウンロード",cnt_patched:"回パッチ適用",c_sys:"メガドライブ / ジェネシス",c_lang:"英語・日本語・イタリア語",w_trailer:"トレーラー",w_download:"ダウンロード",nav_moves:"技表",nav_features:"新要素",nav_screens:"画像",nav_support:"支援",
   push:"▶ スタートボタンを押せ ◀",
   tagline:"メガドライブ版『北斗の拳』を2.5Dの横スクロールアクションとしてゼロから作り直したMODです。奥行きのあるステージ、それぞれ思考と体力を持つ敵、つかみ技、必殺技、そして2人同時プレイ。",
   b_players:"1〜2人用",b_free:"無料・IPSパッチ",cta_download:"▶ ダウンロード",
@@ -733,17 +734,16 @@ document.getElementById("ips-link").addEventListener("click",()=>countHit("ips-d
 
 /* ---------- contatore (Abacus: https://abacus.jasoncameron.dev) ---------- */
 const CNT_API="https://abacus.jasoncameron.dev";
-// contatore DOWNLOAD sempre visibile = ROM patchate qui + .ips scaricati qui + download su itch.io
-// (itch: stats.json aggiornato ogni ora da GitHub Actions, la chiave resta nei Secrets di GitHub)
-const CNT_CACHE="hnk2-last-total";
+// due contatori sempre visibili: ROM patchate qui (★) e download = .ips dal sito + itch.io (⬇)
+// (itch: stats.json aggiornato da GitHub Actions, la chiave resta nei Secrets di GitHub)
 const PARTS=Object.assign({patched:0,ips:0,itch:0},CONFIG.countBase||{});
 try{const sv=JSON.parse(localStorage.getItem("hnk2-parts")||"{}");for(const k in PARTS)if(+sv[k]>PARTS[k])PARTS[k]=+sv[k];}catch(e){}
-function showCount(v){
-  if(typeof v!=="number")return;
-  try{const old=+localStorage.getItem(CNT_CACHE)||0;if(v<old)v=old;localStorage.setItem(CNT_CACHE,String(v));}catch(e){}
-  document.querySelectorAll(".cnt-n").forEach(e=>e.textContent=v.toLocaleString(LANG==="ja"?"ja-JP":LANG==="it"?"it-IT":"en-US"));
+function fmt(v){return v.toLocaleString(LANG==="ja"?"ja-JP":LANG==="it"?"it-IT":"en-US");}
+function showCount(){
+  document.querySelectorAll(".cnt-p").forEach(e=>e.textContent=fmt(PARTS.patched));
+  document.querySelectorAll(".cnt-d").forEach(e=>e.textContent=fmt(PARTS.ips+PARTS.itch));
 }
-function setPart(k,v){if(typeof v==="number"&&v>PARTS[k]){PARTS[k]=v;try{localStorage.setItem("hnk2-parts",JSON.stringify(PARTS));}catch(e){}}showCount(Object.values(PARTS).reduce((a,x)=>a+(x||0),0));}
+function setPart(k,v){if(typeof v==="number"&&v>PARTS[k]){PARTS[k]=v;try{localStorage.setItem("hnk2-parts",JSON.stringify(PARTS));}catch(e){}}showCount();}
 function fetchT(url,ms){const c=new AbortController();const t=setTimeout(()=>c.abort(),ms);return fetch(url,{signal:c.signal,cache:"no-store"}).finally(()=>clearTimeout(t));}
 function countHit(key,silent){
   if(!CONFIG.counterNs)return;
