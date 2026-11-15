@@ -1,14 +1,18 @@
-# Legge ogni ora i download del gioco su itch.io e li salva in stats.json.
+# Legge ogni 5 minuti i download del gioco su itch.io e li salva in stats.json.
 # La chiave API resta nei Secrets del repository (ITCH_API_KEY) e non finisce mai nel sito.
 name: itch.io download counter
 
 on:
   schedule:
-    - cron: "17 * * * *"   # ogni ora
-  workflow_dispatch:        # avvio manuale dal tab Actions
+    - cron: "*/5 * * * *"   # ogni 5 minuti
+  workflow_dispatch:         # avvio manuale dal tab Actions
 
 permissions:
   contents: write
+
+concurrency:
+  group: itch-stats
+  cancel-in-progress: false
 
 jobs:
   update:
@@ -36,4 +40,5 @@ jobs:
           git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
           git add stats.json
           git commit -m "Update itch.io download count"
+          git pull --rebase
           git push
