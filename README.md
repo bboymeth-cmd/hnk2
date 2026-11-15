@@ -4,7 +4,7 @@
 ROM hack by **Metodico**.
 
 ▶ **Play / patch online:** https://bboymeth-cmd.github.io/hnk2/  
-▶ **itch.io:** https://bboymeth-cmd.itch.io/hnk2-perfect-edition  
+▶ **itch.io:** https://bboymeth-cmd.itch.io/hnk2  
 ▶ **Trailer:** https://youtu.be/yxDn07W8Ti4
 
 ## Features
