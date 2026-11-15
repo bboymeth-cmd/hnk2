@@ -46,8 +46,8 @@ const CONFIG = {
   // Trailer: se metti l'ID di YouTube usa quello, altrimenti il video nel sito
   // Contatore delle patch (servizio gratuito Abacus). Cambia il nome solo se vuoi ripartire da zero.
   counterNs:   "hnk2-perfect-edition-metodico",
-  // Numero minimo mostrato subito, mentre il contatore online risponde (aggiornalo ogni tanto a mano)
-  countFloor:  15,
+  // Ultimi valori noti, mostrati subito mentre i contatori online rispondono
+  countBase:   {patched:9, ips:6, itch:64},
   // Download su itch.io: file aggiornato ogni ora da .github/workflows/itch-stats.yml
   itchStats:   "https://raw.githubusercontent.com/bboymeth-cmd/hnk2/main/stats.json",
 
@@ -736,13 +736,14 @@ const CNT_API="https://abacus.jasoncameron.dev";
 // contatore DOWNLOAD sempre visibile = ROM patchate qui + .ips scaricati qui + download su itch.io
 // (itch: stats.json aggiornato ogni ora da GitHub Actions, la chiave resta nei Secrets di GitHub)
 const CNT_CACHE="hnk2-last-total";
-const PARTS={patched:null,ips:null,itch:null};
+const PARTS=Object.assign({patched:0,ips:0,itch:0},CONFIG.countBase||{});
+try{const sv=JSON.parse(localStorage.getItem("hnk2-parts")||"{}");for(const k in PARTS)if(+sv[k]>PARTS[k])PARTS[k]=+sv[k];}catch(e){}
 function showCount(v){
   if(typeof v!=="number")return;
   try{const old=+localStorage.getItem(CNT_CACHE)||0;if(v<old)v=old;localStorage.setItem(CNT_CACHE,String(v));}catch(e){}
   document.querySelectorAll(".cnt-n").forEach(e=>e.textContent=v.toLocaleString(LANG==="ja"?"ja-JP":LANG==="it"?"it-IT":"en-US"));
 }
-function setPart(k,v){if(typeof v!=="number")return;PARTS[k]=v;showCount(Object.values(PARTS).reduce((a,x)=>a+(x||0),0));}
+function setPart(k,v){if(typeof v==="number"&&v>PARTS[k]){PARTS[k]=v;try{localStorage.setItem("hnk2-parts",JSON.stringify(PARTS));}catch(e){}}showCount(Object.values(PARTS).reduce((a,x)=>a+(x||0),0));}
 function fetchT(url,ms){const c=new AbortController();const t=setTimeout(()=>c.abort(),ms);return fetch(url,{signal:c.signal,cache:"no-store"}).finally(()=>clearTimeout(t));}
 function countHit(key,silent){
   if(!CONFIG.counterNs)return;
@@ -757,7 +758,7 @@ function loadPart(part,url,pick,tries){
     .then(d=>setPart(part,pick(d)))
     .catch(()=>{if(tries>0)setTimeout(()=>loadPart(part,url,pick,tries-1),5000);});
 }
-showCount(CONFIG.countFloor||0);
+setPart("itch",PARTS.itch);
 if(CONFIG.counterNs){
   loadPart("patched",`${CNT_API}/get/${CONFIG.counterNs}/patched`,d=>d.value,3);
   loadPart("ips",`${CNT_API}/get/${CONFIG.counterNs}/ips-downloads`,d=>d.value,3);
