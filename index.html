@@ -336,7 +336,7 @@ html[lang=ja] .news h3,html[lang=ja] .news h4,html[lang=ja] .secret h3,html[lang
     <div class="moves" id="movegrid"></div>
     <div class="tips" id="tips"></div>
     <div class="pbox red secret" id="secret">
-      <div class="shot"><img class="pix" id="story-img" src="img/story.png" alt="STORY" width="640" height="335" onerror="this.closest('.secret').classList.add('noimg')"></div>
+      <div class="shot"><img class="pix" id="story-img" src="img/story-en.png" alt="STORY" width="640" height="448" onerror="this.closest('.secret').classList.add('noimg')"></div>
       <div><h3 data-i18n="sec_title"></h3><p data-i18n="sec_how"></p><ul><li data-i18n="sec_1p"></li><li data-i18n="sec_2p"></li></ul></div>
     </div>
   </div>
@@ -711,7 +711,7 @@ function render(){
   document.getElementById("tips").innerHTML=L.tips.map(([h,p])=>`<div class="pbox tip"><h4>▸ ${h}</h4><p>${p}</p></div>`).join("");
   document.getElementById("feat").innerHTML=L.feats.map(([i,h,p])=>`<div class="pbox f"><span class="ic">${i}</span><h3>${h}</h3><p>${p}</p></div>`).join("");
   document.getElementById("gal").innerHTML=SHOTS.map(n=>`<figure data-src="img/${n}.jpg"><img class="pix" loading="lazy" src="img/${n}.jpg" alt="${L.cap[n]}" width="640" height="448"><figcaption>${L.cap[n]}</figcaption></figure>`).join("");
-  const si=document.getElementById("story-img");si.src="img/"+({it:"story-it.png",ja:"story-ja.png"}[LANG]||"story.png");si.alt=LANG==="it"?"STORIA":"STORY";
+  const si=document.getElementById("story-img");si.src="img/"+({it:"story-it.png",ja:"story-ja.png"}[LANG]||"story-en.png");si.alt=LANG==="it"?"STORIA":"STORY";
   document.getElementById("news-list").innerHTML=L.news.map(x=>`<li>${x}</li>`).join("");
   document.getElementById("news-ed").innerHTML=L.news_ed.map(x=>`<li>${x}</li>`).join("");
   document.getElementById("v-badge").textContent=CONFIG.releaseDate?`${CONFIG.version} · ${CONFIG.releaseDate}`:`${CONFIG.version} · ${t("soon")}`;
