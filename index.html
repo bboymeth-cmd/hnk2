@@ -245,10 +245,12 @@ html[lang=ja] .chip,html[lang=ja] .tag,html[lang=ja] .gal figcaption{font-size:1
 html[lang=ja] nav .links a{font-size:12px}
 /* --- versione nuova, donazione discreta, novità, codice segreto --- */
 .newver{display:inline-block;position:relative;z-index:101;margin:0 0 18px;padding:12px 18px;text-decoration:none;color:#000;background:var(--gold);
-  box-shadow:0 0 0 4px #000,0 0 22px rgba(255,210,60,.35);font:13px/1.7 "Press Start 2P","DotGothic16",monospace}
+  box-shadow:0 0 0 4px #000,0 0 22px rgba(255,210,60,.35);font:15px/1.7 "Press Start 2P","DotGothic16",monospace}
 .newver:hover{filter:brightness(1.1)}
 .newver small{display:block;margin-top:4px;font:bold 23px/1.1 VT323,"DotGothic16",monospace;color:#000}
 .navdon{position:relative;z-index:101;font:10px/1 "Press Start 2P","DotGothic16",monospace;color:#111;background:#ffc439;padding:8px 9px;text-decoration:none;box-shadow:0 0 0 3px #000;white-space:nowrap}
+.navdon{display:inline-flex;align-items:center;gap:6px;height:28px}
+.navdon .h{display:block;flex:none}
 .navdon:hover{filter:brightness(1.1)}
 @media(max-width:900px){.navdon{margin-left:auto}nav .lang{margin-left:0}}
 @media(max-width:600px){.navdon .t{display:none}.newver{font-size:10px;padding:10px 12px}.newver small{font-size:20px}}
@@ -278,8 +280,9 @@ html[lang=ja] .news h3,html[lang=ja] .news h4,html[lang=ja] .secret h3,html[lang
       <a href="#features" data-i18n="nav_features">NOVITÀ</a>
       <a href="#screens" data-i18n="nav_screens">IMMAGINI</a>
       <a href="#download" data-i18n="w_download">DOWNLOAD</a>
+      <a href="#support" data-i18n="nav_support">SUPPORTA</a>
     </div>
-    <a class="navdon" id="navdon" target="_blank" rel="noopener">♥ <span class="t" data-i18n="nav_donate">DONATE</span></a>
+    <a class="navdon" id="navdon" target="_blank" rel="noopener"><svg class="h" viewBox="0 0 7 6" width="14" height="12" aria-hidden="true" shape-rendering="crispEdges"><path fill="currentColor" d="M1 0h2v1h1V0h2v1h1v2H6v1H5v1H4v1H3V5H2V4H1V3H0V1h1z"/></svg><span class="t" data-i18n="nav_donate">DONATE</span></a>
     <div class="lang"><button data-lang="en" class="on">EN</button><button data-lang="it">IT</button><button data-lang="ja">JP</button></div>
   </div>
 </nav>
