@@ -7,6 +7,15 @@ ROM hack by **Metodico**.
 ▶ **itch.io:** https://bboymeth-cmd.itch.io/hnk2  
 ▶ **Trailer:** https://youtu.be/yxDn07W8Ti4
 
+## Version 1.1 (2026-11-18)
+- Rapid hits fixed: every punch and kick now connects when mashing
+- More lives: 7 in 1-player mode, 5 each for P1 and P2 in 2-player mode
+- Smarter enemies in 2-player mode, fixed some boss cutscenes, minor fixes
+- EverDrive: "SEGA SSF" header (right mode picked automatically), SSF banks set at boot (no more double reset)
+- Secret code: on the STORY screen hold A+B+C for 5 seconds → infinite lives
+
+Already have 1.0? Re-apply the patch to the **original Japanese ROM**.
+
 ## Features
 - 2.5D movement: walk into the depth of every street
 - Smarter enemies, each with its own AI and life bar
@@ -26,7 +35,9 @@ ROM hack by **Metodico**.
 | MD5 | `f5e327aa603b334fd5713fda10464748` |
 | SHA-1 | `7d489e1087a0816e2091261f6550f42a61474915` |
 
-Patch it online on the page above, or apply `patch/HNK2-Perfect-Edition.ips` with Floating IPS / Lunar IPS / RomPatcher.
+Result (v1.1): 4,194,304 bytes, CRC32 `17074458`.
+
+Patch it online on the page above, or apply `patch/HNK2-Perfect-Edition.ips` (v1.1) with Floating IPS / Lunar IPS / RomPatcher.
 
 ## Support
 The mod is free. If you want to support it: [PayPal](https://paypal.me/metodicoMET)

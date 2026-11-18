@@ -24,10 +24,10 @@
    CONFIGURAZIONE — modifica SOLO questo blocco ad ogni release
    ============================================================ */
 const CONFIG = {
-  version:     "1.0",                               // versione mostrata nella pagina
-  releaseDate: "2026-11-14",                                // es. "2026-12-01" (vuoto = "in arrivo")
+  version:     "1.1",                               // versione mostrata nella pagina
+  releaseDate: "2026-11-18",                                // es. "2026-12-01" (vuoto = "in arrivo")
   patchFile:   "patch/HNK2-Perfect-Edition.ips",    // percorso del file .ips nel sito
-  outputName:  "HNK2 - Perfect Edition.bin",        // nome della ROM che l'utente scarica
+  outputName:  "HNK2 - Perfect Edition v1.1.bin",        // nome della ROM che l'utente scarica
 
   // ROM originale richiesta (Hokuto no Ken - Shin Seikimatsu Kyuuseishu Densetsu (Japan))
   baseName:    "Hokuto no Ken - Shin Seikimatsu Kyuuseishu Densetsu (Japan).bin",
@@ -37,7 +37,10 @@ const CONFIG = {
   baseSHA1:    "7d489e1087a0816e2091261f6550f42a61474915",
 
   // CRC32 della ROM patchata (facoltativo: lascia "" per non controllarlo)
-  resultCRC32: "89C7098E",
+  resultCRC32: "17074458",
+
+  ipsName:     "HNK2 - Perfect Edition v1.1.ips",  // nome con cui si scarica il file .ips
+  newUntil:    "2026-12-18",   // fino a questa data la home mostra "NEW! VERSION …" (vuoto = sempre)
 
   // Donazioni (lascia "" per nascondere un pulsante)
   paypal:      "https://paypal.me/metodicoMET",
@@ -47,7 +50,7 @@ const CONFIG = {
   // Contatore delle patch (servizio gratuito Abacus). Cambia il nome solo se vuoi ripartire da zero.
   counterNs:   "hnk2-perfect-edition-metodico",
   // Ultimi valori noti, mostrati subito mentre i contatori online rispondono
-  countBase:   {patched:10, ips:7, itch:72},
+  countBase:   {patched:10, ips:7, itch:221},
   // Download su itch.io: file aggiornato ogni ora da .github/workflows/itch-stats.yml
   itchStats:   "https://raw.githubusercontent.com/bboymeth-cmd/hnk2/main/stats.json",
 
@@ -240,6 +243,27 @@ html[lang=ja] .stage h2,html[lang=ja] .move h3,html[lang=ja] .f h3,html[lang=ja]
 html[lang=ja] .move h3,html[lang=ja] .f h3,html[lang=ja] .tip h4,html[lang=ja] h3.ph{font-size:15px}
 html[lang=ja] .chip,html[lang=ja] .tag,html[lang=ja] .gal figcaption{font-size:12px}
 html[lang=ja] nav .links a{font-size:12px}
+/* --- versione nuova, donazione discreta, novità, codice segreto --- */
+.newver{display:inline-block;position:relative;z-index:101;margin:0 0 18px;padding:12px 18px;text-decoration:none;color:#000;background:var(--gold);
+  box-shadow:0 0 0 4px #000,0 0 22px rgba(255,210,60,.35);font:13px/1.7 "Press Start 2P","DotGothic16",monospace}
+.newver:hover{filter:brightness(1.1)}
+.newver small{display:block;margin-top:4px;font:bold 23px/1.1 VT323,"DotGothic16",monospace;color:#000}
+.navdon{position:relative;z-index:101;font:10px/1 "Press Start 2P","DotGothic16",monospace;color:#111;background:#ffc439;padding:8px 9px;text-decoration:none;box-shadow:0 0 0 3px #000;white-space:nowrap}
+.navdon:hover{filter:brightness(1.1)}
+@media(max-width:900px){.navdon{margin-left:auto}nav .lang{margin-left:0}}
+@media(max-width:600px){.navdon .t{display:none}.newver{font-size:10px;padding:10px 12px}.newver small{font-size:20px}}
+.news{padding:20px 24px;margin-bottom:30px}
+.news h3{font:13px/1.6 "Press Start 2P","DotGothic16",monospace;color:var(--gold);margin:0 0 12px}
+.news h4{font:10px/1.6 "Press Start 2P","DotGothic16",monospace;color:var(--blue2);margin:16px 0 8px}
+.news ul{margin:0;padding-left:22px;color:var(--text)}.news li{margin-bottom:6px}
+.news .warn{margin:16px 0 0;color:var(--gold)}
+.secret{display:grid;grid-template-columns:minmax(0,320px) 1fr;gap:22px;align-items:center;padding:18px;margin-top:34px}
+.secret .shot img{width:100%;height:auto;box-shadow:0 0 0 4px #000}
+.secret h3{font:12px/1.6 "Press Start 2P","DotGothic16",monospace;color:var(--red2);margin:0 0 10px}
+.secret p{margin:0 0 10px;color:var(--muted)}.secret ul{margin:0;padding-left:22px}
+.secret.noimg{grid-template-columns:1fr}.secret.noimg .shot{display:none}
+@media(max-width:700px){.secret{grid-template-columns:1fr}}
+html[lang=ja] .news h3,html[lang=ja] .news h4,html[lang=ja] .secret h3,html[lang=ja] .newver,html[lang=ja] .navdon{font-family:"Press Start 2P","DotGothic16",monospace}
 @media (prefers-reduced-motion:reduce){.blink{animation:none}}
 </style>
 </head>
@@ -254,8 +278,8 @@ html[lang=ja] nav .links a{font-size:12px}
       <a href="#features" data-i18n="nav_features">NOVITÀ</a>
       <a href="#screens" data-i18n="nav_screens">IMMAGINI</a>
       <a href="#download" data-i18n="w_download">DOWNLOAD</a>
-      <a href="#support" data-i18n="nav_support">SUPPORTA</a>
     </div>
+    <a class="navdon" id="navdon" target="_blank" rel="noopener">♥ <span class="t" data-i18n="nav_donate">DONATE</span></a>
     <div class="lang"><button data-lang="en" class="on">EN</button><button data-lang="it">IT</button><button data-lang="ja">JP</button></div>
   </div>
 </nav>
@@ -265,6 +289,7 @@ html[lang=ja] nav .links a{font-size:12px}
     <div class="crt"><div class="screen"><img class="pix" src="img/title.jpg" alt="HNK2 – Perfect Edition" width="640" height="448"></div></div>
     <h1 class="px">HNK2 – PERFECT EDITION</h1>
     <p class="sub px blink" data-i18n="push">▶ PREMI START ◀</p>
+    <a class="newver hide" id="newver" href="#whatsnew"><span data-i18n="new_badge"></span><small data-i18n="new_sub"></small></a>
     <p class="tagline" data-i18n="tagline"></p>
     <div class="chips">
       <span class="chip" data-i18n="c_sys">MEGA DRIVE / GENESIS</span>
@@ -303,6 +328,10 @@ html[lang=ja] nav .links a{font-size:12px}
     </div>
     <div class="moves" id="movegrid"></div>
     <div class="tips" id="tips"></div>
+    <div class="pbox red secret" id="secret">
+      <div class="shot"><img class="pix" src="img/story.png" alt="STORY" width="640" height="335" onerror="this.closest('.secret').classList.add('noimg')"></div>
+      <div><h3 data-i18n="sec_title"></h3><p data-i18n="sec_how"></p><ul><li data-i18n="sec_1p"></li><li data-i18n="sec_2p"></li></ul></div>
+    </div>
   </div>
 </section>
 
@@ -326,6 +355,13 @@ html[lang=ja] nav .links a{font-size:12px}
   <div class="wrap">
     <div class="stage"><span class="num">STAGE 5</span><h2 data-i18n="w_download">DOWNLOAD</h2></div>
     <p class="lead" data-i18n="dl_lead"></p>
+    <div class="pbox gold news" id="whatsnew">
+      <h3 data-i18n="news_title"></h3>
+      <ul id="news-list"></ul>
+      <h4>EVERDRIVE</h4>
+      <ul id="news-ed"></ul>
+      <p class="warn" data-i18n="news_warn"></p>
+    </div>
     <div class="patcher">
       <div class="pbox gold">
         <div class="drop" id="drop" tabindex="0" role="button">
@@ -403,6 +439,20 @@ const K={
 /* ---------- testi IT / EN ---------- */
 const T = {
 it:{
+  nav_donate:"DONA",
+  new_badge:"★ NEW! VERSIONE 1.1 ★",new_sub:"Colpi più precisi, più vite, fix EverDrive · riapplica la patch",
+  news_title:"NOVITÀ DELLA VERSIONE 1.1",
+  news:["<b>Colpi a raffica sistemati:</b> premendo i tasti di continuo alcuni colpi andavano a vuoto, perché il nemico restava segnato come “già colpito”. Ora ogni pugno e ogni calcio va a segno.",
+    "<b>Più vite:</b> in 1 giocatore Kenshiro ha 7 vite; in 2 giocatori P1 e P2 ne hanno 5 a testa.",
+    "<b>Nemici più furbi</b> in modalità 2 giocatori.",
+    "Corretti alcuni filmati dei boss.",
+    "Altre piccole correzioni."],
+  news_ed:["Intestazione “SEGA SSF”: l'EverDrive sceglie da solo la modalità giusta.",
+    "I banchi di memoria SSF vengono sistemati all'avvio: niente più doppio reset."],
+  news_warn:"⚠ Hai già la 1.0? Riapplica la patch alla <b>ROM giapponese originale</b>, non alla ROM già patchata. Il patcher qui sotto crea direttamente “HNK2 - Perfect Edition v1.1”.",
+  sec_title:"★ CODICE SEGRETO: VITE INFINITE",
+  sec_how:"Dal menu principale premi START per arrivare alla schermata STORIA. Lì tieni premuti <b>A + B + C</b> per 5 secondi, finché senti il suono di conferma.",
+  sec_1p:"<b>1 giocatore:</b> vite infinite per P1.",sec_2p:"<b>2 giocatori:</b> vite infinite per P1 e P2.",
   dl_itch:"Lo trovi anche su",cnt_label:"DOWNLOAD",cnt_patched:"ROM PATCHATE",c_sys:"MEGA DRIVE / GENESIS",c_lang:"ENG · JAP · ITA",w_trailer:"TRAILER",w_download:"DOWNLOAD",nav_moves:"MOSSE",nav_features:"CARATTERISTICHE",nav_screens:"IMMAGINI",nav_support:"SUPPORTA",
   push:"▶ PREMI START ◀",
   tagline:"Hokuto no Ken 2 per Mega Drive, ricostruito da zero come un picchiaduro a scorrimento in 2.5D: strade da percorrere in profondità, nemici con la loro intelligenza e la loro energia, prese, mosse speciali e 2 giocatori.",
@@ -469,6 +519,20 @@ it:{
   st_err:"Errore: {msg}"
 },
 en:{
+  nav_donate:"DONATE",
+  new_badge:"★ NEW! VERSION 1.1 OUT ★",new_sub:"Sharper hits, more lives, EverDrive fixes · re-patch your ROM",
+  news_title:"WHAT'S NEW IN VERSION 1.1",
+  news:["<b>Rapid hits fixed:</b> when mashing the buttons some hits went through the enemy, because it stayed marked as “already hit”. Now every punch and every kick connects.",
+    "<b>More lives:</b> in 1-player mode Kenshiro has 7 lives; in 2-player mode P1 and P2 have 5 each.",
+    "<b>Smarter enemies</b> in 2-player mode.",
+    "Fixed some boss cutscenes.",
+    "Other minor fixes."],
+  news_ed:["“SEGA SSF” header: the EverDrive now picks the right mode by itself.",
+    "SSF memory banks are set up at boot: no more double reset."],
+  news_warn:"⚠ Already have 1.0? Apply the patch again to your <b>original Japanese ROM</b>, not to the already patched one. The patcher below creates “HNK2 - Perfect Edition v1.1” directly.",
+  sec_title:"★ SECRET CODE: INFINITE LIVES",
+  sec_how:"From the main menu press START to reach the STORY screen. There, hold <b>A + B + C</b> for 5 seconds until you hear the confirmation sound.",
+  sec_1p:"<b>1 player:</b> infinite lives for P1.",sec_2p:"<b>2 players:</b> infinite lives for P1 and P2.",
   dl_itch:"Also available on",cnt_label:"DOWNLOADS",cnt_patched:"ROMS PATCHED",c_sys:"MEGA DRIVE / GENESIS",c_lang:"ENG · JAP · ITA",w_trailer:"TRAILER",w_download:"DOWNLOAD",nav_moves:"MOVE LIST",nav_features:"FEATURES",nav_screens:"SCREENS",nav_support:"SUPPORT",
   push:"▶ PRESS START ◀",
   tagline:"Hokuto no Ken 2 for Mega Drive, rebuilt from the ground up as a 2.5D side-scrolling beat 'em up: streets you walk into in depth, enemies with their own AI and life, grabs, special moves and 2 players.",
@@ -535,6 +599,20 @@ en:{
   st_err:"Error: {msg}"
 },
 ja:{
+  nav_donate:"寄付",
+  new_badge:"★ NEW! バージョン1.1 ★",new_sub:"攻撃判定の改善・残機アップ・EverDrive対応 · パッチを当て直してください",
+  news_title:"バージョン1.1の更新内容",
+  news:["<b>連打時の攻撃を修正：</b>ボタンを連打すると、敵が「ヒット済み」のままになり攻撃がすり抜けることがありました。今はパンチもキックも一発ずつ当たります。",
+    "<b>残機アップ：</b>1人プレイではケンシロウの残機が7、2人プレイではP1・P2それぞれ5になりました。",
+    "2人プレイ時の<b>敵AIを強化</b>。",
+    "一部のボスのムービーを修正。",
+    "その他の細かい修正。"],
+  news_ed:["ヘッダーを「SEGA SSF」に変更：EverDriveが自動で正しいモードを選びます。",
+    "起動時にSSFのメモリバンクを初期化：二重リセットが不要になりました。"],
+  news_warn:"⚠ 1.0をお持ちの方へ：パッチは必ず<b>オリジナルの日本版ROM</b>に当て直してください（パッチ済みROMには当てないでください）。下のパッチャーで「HNK2 - Perfect Edition v1.1」が直接作成されます。",
+  sec_title:"★ 隠しコマンド：残機無限",
+  sec_how:"メインメニューでSTARTを押し、STORY画面へ。そこで<b>A＋B＋C</b>を5秒間押し続け、確認音が鳴れば成功です。",
+  sec_1p:"<b>1人プレイ：</b>P1の残機が無限に。",sec_2p:"<b>2人プレイ：</b>P1とP2の残機が無限に。",
   dl_itch:"こちらでも配布中：",cnt_label:"ダウンロード",cnt_patched:"回パッチ適用",c_sys:"メガドライブ / ジェネシス",c_lang:"英語・日本語・イタリア語",w_trailer:"トレーラー",w_download:"ダウンロード",nav_moves:"技表",nav_features:"新要素",nav_screens:"画像",nav_support:"支援",
   push:"▶ スタートボタンを押せ ◀",
   tagline:"メガドライブ版『北斗の拳』を2.5Dの横スクロールアクションとしてゼロから作り直したMODです。奥行きのあるステージ、それぞれ思考と体力を持つ敵、つかみ技、必殺技、そして2人同時プレイ。",
@@ -626,6 +704,8 @@ function render(){
   document.getElementById("tips").innerHTML=L.tips.map(([h,p])=>`<div class="pbox tip"><h4>▸ ${h}</h4><p>${p}</p></div>`).join("");
   document.getElementById("feat").innerHTML=L.feats.map(([i,h,p])=>`<div class="pbox f"><span class="ic">${i}</span><h3>${h}</h3><p>${p}</p></div>`).join("");
   document.getElementById("gal").innerHTML=SHOTS.map(n=>`<figure data-src="img/${n}.jpg"><img class="pix" loading="lazy" src="img/${n}.jpg" alt="${L.cap[n]}" width="640" height="448"><figcaption>${L.cap[n]}</figcaption></figure>`).join("");
+  document.getElementById("news-list").innerHTML=L.news.map(x=>`<li>${x}</li>`).join("");
+  document.getElementById("news-ed").innerHTML=L.news_ed.map(x=>`<li>${x}</li>`).join("");
   document.getElementById("v-badge").textContent=CONFIG.releaseDate?`${CONFIG.version} · ${CONFIG.releaseDate}`:`${CONFIG.version} · ${t("soon")}`;
   document.getElementById("f-ver").textContent=`v${CONFIG.version}`;
   setStatus(state.msgKey,state.msgVars,state.msgCls);
@@ -640,7 +720,9 @@ document.getElementById("lb").onclick=e=>e.currentTarget.classList.remove("on");
   $("r-name").textContent=CONFIG.baseName;
   $("r-size").textContent=`${CONFIG.baseSize.toLocaleString("it-IT")} byte (512 KB)`;
   $("r-crc").textContent=CONFIG.baseCRC32;$("r-md5").textContent=CONFIG.baseMD5;$("r-sha").textContent=CONFIG.baseSHA1;
-  $("ips-link").href=CONFIG.patchFile;
+  $("ips-link").href=CONFIG.patchFile;if(CONFIG.ipsName)$("ips-link").setAttribute("download",CONFIG.ipsName);
+  if(CONFIG.paypal)$("navdon").href=CONFIG.paypal;else $("navdon").classList.add("hide");
+  if(!CONFIG.newUntil||new Date()<=new Date(CONFIG.newUntil+"T23:59:59"))$("newver").classList.remove("hide");
   if(CONFIG.paypal)$("pp").href=CONFIG.paypal;else $("pp").classList.add("hide");
   if(CONFIG.kofi)$("kofi").href=CONFIG.kofi;else $("kofi").classList.add("hide");
   const vb=$("video-box");
@@ -763,7 +845,14 @@ if(CONFIG.counterNs){
   loadPart("patched",`${CNT_API}/get/${CONFIG.counterNs}/patched`,d=>d.value,3);
   loadPart("ips",`${CNT_API}/get/${CONFIG.counterNs}/ips-downloads`,d=>d.value,3);
 }
-if(CONFIG.itchStats)loadPart("itch",CONFIG.itchStats+"?t="+Date.now(),d=>d.itch_downloads,3);
+// itch: prima l'API di GitHub (aggiornata in ~1 minuto), se non risponde il file "raw" (cache fino a 5 minuti)
+function loadItch(){
+  fetchT("https://api.github.com/repos/bboymeth-cmd/hnk2/contents/stats.json?ref=main",15000)
+    .then(r=>{if(!r.ok)throw 0;return r.json();})
+    .then(d=>setPart("itch",JSON.parse(atob(d.content.replace(/\s/g,""))).itch_downloads))
+    .catch(()=>{if(CONFIG.itchStats)loadPart("itch",CONFIG.itchStats+"?t="+Date.now(),d=>d.itch_downloads,3);});
+}
+loadItch();
 
 render();
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{if(!document.fonts.check('22px VT323'))document.body.classList.add("nofont");});
